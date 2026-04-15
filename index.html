@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Mighty Teck | Build the Future</title>
+    <title>Mighty Teck | Galactic Digital Supremacy</title>
     
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -21,7 +22,10 @@
         }
 
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background-color: var(--mt-bg);
             color: white;
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -33,75 +37,89 @@
 
         /* 3D Background */
         #canvas-container {
-            position: fixed; top: 0; left: 0;
+            position: fixed;
+            top: 0; left: 0;
             width: 100%; height: 100%;
-            z-index: 1; pointer-events: none;
+            z-index: 1;
+            pointer-events: none;
         }
 
         /* Screen Management */
-        .screen { position: relative; z-index: 10; min-height: 100vh; width: 100%; display: none; }
+        .screen {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            width: 100%;
+            display: none;
+        }
         .screen.active { display: block; }
 
+        /* Overlay Gradients */
         .vignette {
-            position: fixed; inset: 0;
-            background: radial-gradient(circle, transparent 20%, rgba(1, 1, 3, 0.9) 100%);
-            z-index: 2; pointer-events: none;
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, transparent 20%, rgba(1, 1, 3, 0.8) 100%);
+            z-index: 2;
+            pointer-events: none;
         }
 
+        /* UI Elements */
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1.5rem;
         }
 
         .btn-gold {
             background: var(--mt-gold);
-            color: black; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.15em; padding: 1.25rem 2rem;
+            color: black;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 1rem 2rem;
             border-radius: 0.75rem;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
         }
-        .btn-gold:active { transform: scale(0.92); }
+        .btn-gold:active { transform: scale(0.95); opacity: 0.9; }
 
-        /* Loading Bar Styles */
-        .loader-track {
-            width: 200px; height: 2px;
-            background: rgba(255,255,255,0.1);
-            margin-top: 2rem; border-radius: 2px; overflow: hidden;
-        }
-        .loader-fill {
-            width: 0%; height: 100%;
-            background: var(--mt-gold);
-            box-shadow: 0 0 10px var(--mt-gold);
-        }
-
-        /* Chatbot */
+        /* Chatbot Styles */
         #chatbot-container {
-            position: fixed; bottom: 6.5rem; right: 1rem;
-            width: calc(100% - 2rem); max-width: 380px;
-            height: 500px; z-index: 1000; display: none;
+            position: fixed;
+            bottom: 6rem; right: 1rem;
+            width: 90%; max-width: 350px;
+            height: 450px;
+            z-index: 100;
+            display: none;
             flex-direction: column;
         }
+        .chat-bubble {
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            max-width: 80%;
+            margin-bottom: 0.5rem;
+        }
+        .chat-bot { background: rgba(255, 255, 255, 0.1); align-self: flex-start; border-bottom-left-radius: 0.2rem; }
+        .chat-user { background: var(--mt-gold); color: black; align-self: flex-end; border-bottom-right-radius: 0.2rem; font-weight: 600; }
+
+        /* Scroll Intro Sections */
+        .intro-trigger { height: 300vh; }
 
         .back-btn {
-            position: sticky; top: 1rem; left: 1rem; z-index: 50;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
-            width: 44px; height: 44px; border-radius: 12px;
+            position: sticky;
+            top: 1rem;
+            left: 1rem;
+            z-index: 50;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            width: 40px; height: 40px;
+            border-radius: 50%;
             display: flex; items-center: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
         }
-
-        .chat-user { background: var(--mt-gold); color: black; align-self: flex-end; font-weight: 600; }
-        .chat-bot { background: rgba(255, 255, 255, 0.1); align-self: flex-start; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .animate-float { animation: float 4s ease-in-out infinite; }
     </style>
 </head>
 <body>
@@ -109,36 +127,23 @@
     <div id="canvas-container"></div>
     <div class="vignette"></div>
 
-    <!-- 1. INTRO SCREEN -->
-    <div id="screen-intro" class="screen active flex flex-col items-center justify-center">
-        <div class="z-20 text-center px-8 flex flex-col items-center">
-            
-            <div id="intro-logo" class="mb-8 opacity-0 translate-y-4">
-                <div class="w-16 h-16 border border-[--mt-gold]/50 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-md">
-                    <i data-lucide="shield" class="text-[--mt-gold] w-8 h-8"></i>
+    <!-- 1. INTRO / SCROLL SCREEN -->
+    <div id="screen-intro" class="screen active overflow-y-auto">
+        <div class="intro-trigger">
+            <!-- Scroll Content -->
+            <div class="h-screen flex flex-col items-center justify-center text-center px-6 sticky top-0">
+                <div class="mb-6 opacity-0" id="intro-logo">
+                    <div class="w-20 h-20 border-2 border-[--mt-gold] rounded-2xl flex items-center justify-center mx-auto bg-black/50">
+                        <span class="text-[--mt-gold] font-black text-[10px] leading-tight">MIGHTY<br>TECK</span>
+                    </div>
                 </div>
-            </div>
-
-            <h1 id="intro-title" class="text-3xl md:text-5xl font-black mb-2 opacity-0 tracking-tighter leading-none">
-                BUILD WITH <br><span class="text-[--mt-gold]">MIGHTY TECK</span>
-            </h1>
-
-            <!-- Loading Bar -->
-            <div id="intro-loader" class="loader-track opacity-0">
-                <div id="loader-fill" class="loader-fill"></div>
-            </div>
-
-            <div id="intro-cta" class="mt-12 opacity-0 flex flex-col items-center">
-                <button onclick="startApp()" class="btn-gold flex items-center gap-4 mb-10">
-                    Enter System <i data-lucide="zap" class="w-5 h-5"></i>
-                </button>
-
-                <!-- Why Mighty Teck Intro -->
-                <div class="max-w-xs space-y-4 pt-6 border-t border-white/10">
-                    <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[--mt-gold] mb-2">Why Mighty Teck?</p>
-                    <p class="text-sm font-light text-white/70 leading-relaxed italic">
-                        "In a world of template solutions, we build <span class="text-white font-bold">digital fortresses</span>. We don't just create websites; we engineer high-performance ecosystems that dominate search results and turn users into <span class="text-white font-bold">loyal advocates</span>."
-                    </p>
+                <h1 id="intro-title" class="text-3xl md:text-5xl font-black mb-4 opacity-0">Galactic Digital<br><span class="text-[--mt-gold]">Supremacy</span></h1>
+                <p id="intro-subtitle" class="text-white/40 text-[10px] tracking-[0.5em] uppercase font-bold opacity-0">Scroll to Initiate Command</p>
+                
+                <div id="intro-cta" class="mt-12 opacity-0">
+                    <button onclick="navigateTo('services')" class="btn-gold flex items-center gap-3">
+                        Enter System <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -146,400 +151,347 @@
 
     <!-- 2. SERVICES SCREEN -->
     <div id="screen-services" class="screen bg-[#010103]/90">
-        <div class="p-6 pt-12 pb-32">
-            <h2 class="text-3xl font-black mb-2 uppercase">Missions</h2>
-            <p class="text-white/40 text-[10px] mb-10 tracking-[0.3em] uppercase font-bold">Select Deployment Level</p>
+        <button onclick="navigateTo('intro')" class="back-btn m-4"><i data-lucide="arrow-left" class="text-white"></i></button>
+        <div class="p-6 pt-2 pb-32">
+            <h2 class="text-2xl font-black mb-2 uppercase">Service Tiers</h2>
+            <p class="text-white/40 text-xs mb-8 tracking-wider uppercase">Select your infrastructure level</p>
 
             <div class="space-y-6">
                 <!-- Card 1 -->
                 <div class="glass-card p-6 border-white/5" onclick="selectTier('Starter', 500)">
                     <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-xs font-black text-cyan-400 uppercase tracking-widest">Starter</h4>
+                        <h4 class="text-sm font-black text-cyan-400 uppercase tracking-widest">Starter</h4>
                         <span class="text-2xl font-black">$500</span>
                     </div>
-                    <ul class="text-[11px] space-y-3 text-white/60 mb-8">
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> 5 Page Professional Site</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> Mobile First Architecture</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> Standard SEO Package</li>
+                    <ul class="text-[11px] space-y-2 text-white/60 mb-6">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> 5 Page Professional Site</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Mobile Responsive</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Standard Hosting Setup</li>
                     </ul>
-                    <button class="w-full py-4 rounded-xl border border-cyan-400/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest">Select Tier</button>
+                    <button class="w-full py-3 rounded-lg border border-cyan-400/30 text-cyan-400 text-[10px] font-black uppercase">Select Starter</button>
                 </div>
 
                 <!-- Card 2 -->
-                <div class="glass-card p-6 border-[--mt-gold]/40 bg-[--mt-gold]/5 relative" onclick="selectTier('Growth', 700)">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[--mt-gold] text-black text-[9px] px-4 py-1 rounded-full font-black uppercase tracking-widest">Elite Choice</div>
+                <div class="glass-card p-6 border-[--mt-gold]/40 bg-[--mt-gold]/5" onclick="selectTier('Growth', 700)">
+                    <div class="absolute -top-3 right-6 bg-[--mt-gold] text-black text-[8px] px-3 py-1 rounded-full font-black uppercase tracking-tighter">Recommended</div>
                     <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-xs font-black text-[--mt-gold] uppercase tracking-widest">Growth</h4>
+                        <h4 class="text-sm font-black text-[--mt-gold] uppercase tracking-widest">Growth</h4>
                         <span class="text-2xl font-black">$700</span>
                     </div>
-                    <ul class="text-[11px] space-y-3 text-white/60 mb-8">
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> Everything in Starter</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> Meta Pixel & Social Commerce</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> Google Business Integration</li>
+                    <ul class="text-[11px] space-y-2 text-white/60 mb-6">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Everything in Starter</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Meta Pixel & Analytics</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Social Media Integration</li>
                     </ul>
-                    <button class="w-full py-4 rounded-xl bg-[--mt-gold] text-black text-[10px] font-black uppercase tracking-widest">Deploy Growth</button>
+                    <button class="w-full py-3 rounded-lg bg-[--mt-gold] text-black text-[10px] font-black uppercase">Deploy Growth</button>
                 </div>
 
                 <!-- Card 3 -->
                 <div class="glass-card p-6 border-white/5" onclick="selectTier('Dominion', 1000)">
                     <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-xs font-black text-white uppercase tracking-widest">Dominion</h4>
+                        <h4 class="text-sm font-black text-white uppercase tracking-widest">Dominion</h4>
                         <span class="text-2xl font-black">$1000</span>
                     </div>
-                    <ul class="text-[11px] space-y-3 text-white/60 mb-8">
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> Enterprise Scale Deployment</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> 6 Months Strategy Support</li>
-                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-4 h-4 text-[--mt-gold]"></i> Advanced Analytics Engine</li>
+                    <ul class="text-[11px] space-y-2 text-white/60 mb-6">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Full Enterprise Setup</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> 6 Months Support</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Custom Logic Engines</li>
                     </ul>
-                    <button class="w-full py-4 rounded-xl border border-white/20 text-white text-[10px] font-black uppercase tracking-widest">Go Dominion</button>
+                    <button class="w-full py-3 rounded-lg border border-white/30 text-white text-[10px] font-black uppercase">Acquire Dominion</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 3. PAYMENT SCREEN -->
+    <!-- 3. PAYMENT / CHECKOUT -->
     <div id="screen-payment" class="screen bg-[#010103]">
-        <button onclick="navigateTo('services')" class="back-btn m-6"><i data-lucide="arrow-left" class="text-white"></i></button>
+        <button onclick="navigateTo('services')" class="back-btn m-4"><i data-lucide="arrow-left" class="text-white"></i></button>
         <div class="p-6">
-            <h2 class="text-2xl font-black mb-10 uppercase">Security Gate</h2>
+            <h2 class="text-2xl font-black mb-8 uppercase">Secure Checkout</h2>
             
-            <div class="glass-card p-6 mb-8 border-[--mt-gold]/20">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-white/40 text-[10px] uppercase font-black">Plan</span>
-                    <span id="display-tier-name" class="font-black text-[--mt-gold] uppercase text-sm tracking-widest">Starter</span>
+            <div class="glass-card p-6 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-white/40 text-xs uppercase font-bold">Selected Mission</span>
+                    <span id="display-tier-name" class="font-black text-[--mt-gold] uppercase">Starter</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-white/40 text-[10px] uppercase font-black">Subtotal</span>
-                    <span id="display-tier-price" class="font-black text-2xl">$500.00</span>
+                    <span class="text-white/40 text-xs uppercase font-bold">Investment</span>
+                    <span id="display-tier-price" class="font-black text-xl">$500.00</span>
                 </div>
             </div>
 
             <div class="space-y-4 mb-10">
-                <div class="bg-white/5 p-5 rounded-xl border border-white/10 flex items-center gap-4">
-                    <i data-lucide="credit-card" class="text-white/30 w-5 h-5"></i>
-                    <input type="text" placeholder="Card Number" class="bg-transparent border-none outline-none text-sm w-full font-mono tracking-widest" value="4242 4242 4242 4242">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
+                    <i data-lucide="credit-card" class="text-white/40 w-5 h-5"></i>
+                    <input type="text" placeholder="Card Number" class="bg-transparent border-none outline-none text-sm w-full font-mono" value="4242 4242 4242 4242">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white/5 p-5 rounded-xl border border-white/10">
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
                         <input type="text" placeholder="MM/YY" class="bg-transparent border-none outline-none text-sm w-full font-mono" value="12/28">
                     </div>
-                    <div class="bg-white/5 p-5 rounded-xl border border-white/10">
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
                         <input type="password" placeholder="CVC" class="bg-transparent border-none outline-none text-sm w-full font-mono" value="123">
                     </div>
                 </div>
             </div>
 
-            <button onclick="processPayment()" class="btn-gold w-full flex items-center justify-center gap-4">
-                Verify & Authorize <i data-lucide="shield-check" class="w-5 h-5"></i>
+            <button onclick="processPayment()" class="btn-gold w-full flex items-center justify-center gap-3">
+                Authorize Payment <i data-lucide="lock" class="w-5 h-5"></i>
             </button>
         </div>
     </div>
 
-    <!-- 4. THANK YOU / INVOICE -->
+    <!-- 4. THANK YOU / INVOICE SCREEN -->
     <div id="screen-thankyou" class="screen bg-[#010103]">
         <div class="p-6 pt-20 text-center">
-            <div class="w-24 h-24 bg-[--mt-cyan]/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-[--mt-cyan]/30 animate-pulse">
-                <i data-lucide="check" class="text-[--mt-cyan] w-12 h-12"></i>
+            <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/50">
+                <i data-lucide="check" class="text-green-500 w-10 h-10"></i>
             </div>
-            <h2 class="text-3xl font-black mb-4 uppercase">Mission<br><span class="text-[--mt-gold]">Active</span></h2>
-            <p class="text-white/60 text-xs mb-12 tracking-wide font-light px-4">Assets secured. Check your communication channels for the Architect's briefing.</p>
+            <h2 class="text-3xl font-black mb-4 uppercase">Mission<br><span class="text-[--mt-gold]">Accepted</span></h2>
+            <p class="text-white/60 text-sm mb-12">Your payment was successful. The Architect has been notified and your environment is being provisioned.</p>
 
-            <div id="invoice-block" class="bg-white text-black p-8 rounded-3xl text-left mb-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
-                <div class="flex justify-between items-start mb-8">
+            <!-- Invoice Area -->
+            <div id="invoice-block" class="bg-white text-black p-6 rounded-2xl text-left mb-8 shadow-2xl">
+                <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h4 class="font-black text-xl tracking-tighter">MIGHTY TECK</h4>
-                        <p class="text-[8px] uppercase font-black text-gray-400">Order ID: #MT-SYS-772</p>
+                        <h4 class="font-black text-lg">MIGHTY TECK LLC</h4>
+                        <p class="text-[9px] uppercase font-bold text-gray-400">Transaction ID: #MT-8829</p>
                     </div>
-                    <i data-lucide="qr-code" class="text-gray-200 w-10 h-10"></i>
+                    <div class="text-right">
+                        <p class="text-[9px] font-bold text-gray-400 uppercase">Date</p>
+                        <p class="text-[10px] font-black" id="invoice-date">--/--/--</p>
+                    </div>
                 </div>
-                <div class="border-t-2 border-dashed border-gray-100 pt-6 mb-6">
+                <div class="border-t border-gray-200 pt-4 mb-4">
                     <div class="flex justify-between mb-2">
-                        <span class="text-[10px] font-black text-gray-400 uppercase">Deployed Plan</span>
+                        <span class="text-xs font-bold text-gray-500">Service</span>
                         <span class="text-xs font-black uppercase" id="inv-tier">Starter</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-[10px] font-black text-gray-400 uppercase">Paid</span>
-                        <span class="text-xl font-black" id="inv-price">$500.00</span>
+                        <span class="text-xs font-bold text-gray-500">Total</span>
+                        <span class="text-lg font-black" id="inv-price">$500.00</span>
                     </div>
                 </div>
-                <p id="invoice-date" class="text-[8px] text-gray-300 font-bold mb-0">Processed on: 00/00/00</p>
+                <p class="text-[8px] text-gray-400 text-center border-t border-gray-100 pt-4 uppercase font-bold">Status: Fully Paid & Verified</p>
             </div>
 
-            <button onclick="window.print()" class="flex items-center justify-center gap-2 text-[--mt-gold] font-black uppercase text-[10px] mb-8 mx-auto tracking-[0.2em]">
-                <i data-lucide="file-text" class="w-4 h-4"></i> Generate PDF Statement
+            <button onclick="downloadInvoice()" class="flex items-center justify-center gap-2 text-[--mt-gold] font-black uppercase text-xs mb-8 mx-auto">
+                <i data-lucide="download" class="w-4 h-4"></i> Download Invoice (PDF)
             </button>
 
-            <button onclick="navigateTo('portal')" class="btn-gold w-full">Go to Control Center</button>
+            <button onclick="navigateTo('portal')" class="btn-gold w-full">Go to Client Portal</button>
         </div>
     </div>
 
-    <!-- 5. CLIENT PORTAL -->
+    <!-- 5. CLIENT PORTAL SCREEN -->
     <div id="screen-portal" class="screen bg-[#010103]">
         <div class="p-6">
-            <header class="flex justify-between items-center mb-12 pt-6">
+            <header class="flex justify-between items-center mb-8">
                 <div>
-                    <p class="text-white/40 text-[9px] font-black uppercase tracking-[0.3em] mb-1">System Status</p>
-                    <h2 class="text-xl font-black uppercase">Client Dashboard</h2>
+                    <p class="text-white/40 text-[9px] font-black uppercase tracking-widest">Client Portal</p>
+                    <h2 class="text-xl font-black uppercase">Commander Portal</h2>
                 </div>
-                <button onclick="navigateTo('architect')" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                    <i data-lucide="cpu" class="w-6 h-6 text-[--mt-gold]"></i>
+                <button onclick="navigateTo('architect')" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                    <i data-lucide="user" class="w-5 h-5"></i>
                 </button>
             </header>
 
-            <div class="glass-card p-6 mb-10 border-[--mt-cyan]/20 shadow-[0_0_40px_rgba(0,240,255,0.05)]">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-[--mt-cyan]">Current Build Progress</h3>
-                    <span class="text-[9px] font-black text-white/50">45%</span>
+            <!-- Project Progress -->
+            <div class="glass-card p-6 mb-8 border-[--mt-gold]/20">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-black uppercase tracking-wider">Active Infrastructure</h3>
+                    <span class="text-[9px] bg-green-500/20 text-green-500 px-2 py-1 rounded-full font-black uppercase">Stable</span>
                 </div>
-                <div class="h-3 w-full bg-black rounded-full mb-4 overflow-hidden border border-white/5">
-                    <div class="h-full bg-gradient-to-r from-[--mt-cyan] to-[--mt-gold] w-[45%]"></div>
+                <div class="h-2 w-full bg-white/5 rounded-full mb-3 overflow-hidden">
+                    <div class="h-full bg-[--mt-gold] w-[45%] animate-pulse"></div>
                 </div>
-                <p class="text-[10px] font-bold text-white/40 uppercase">Phase: <span class="text-white">Architecture & Logic Mapping</span></p>
+                <p class="text-[10px] text-white/40">Phase: <span class="text-white font-bold uppercase">Development (45%)</span></p>
             </div>
 
-            <h3 class="text-[10px] font-black uppercase tracking-[0.4em] mb-6 text-white/30 text-center">Add-On Capabilities</h3>
+            <h3 class="text-xs font-black uppercase tracking-[0.2em] mb-4 text-white/60">Additional Ecosystem Services</h3>
             <div class="grid grid-cols-1 gap-4 mb-32">
-                <div class="glass-card p-6 flex items-center gap-5 border-white/5 active:bg-white/10 transition-colors" onclick="alert('Sending inquiry to drone division...')">
-                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0"><i data-lucide="crosshair" class="text-blue-500 w-6 h-6"></i></div>
-                    <div class="flex-1">
-                        <h4 class="text-xs font-black uppercase mb-1">Drone Intelligence</h4>
-                        <p class="text-[9px] text-white/40 leading-relaxed uppercase tracking-widest">Aerial Asset Documentation</p>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-white/20"></i>
+                <div class="glass-card p-5 flex items-center gap-4 border-white/5" onclick="alert('Inquiry sent for Drone services!')">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center"><i data-lucide="camera" class="text-blue-500 w-5 h-5"></i></div>
+                    <div><h4 class="text-xs font-black uppercase">Drone Photography</h4><p class="text-[9px] text-white/40">Aerial intelligence & visuals</p></div>
+                    <i data-lucide="plus" class="ml-auto w-4 h-4 text-white/20"></i>
                 </div>
-                <div class="glass-card p-6 flex items-center gap-5 border-white/5">
-                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0"><i data-lucide="camera" class="text-purple-500 w-6 h-6"></i></div>
-                    <div class="flex-1">
-                        <h4 class="text-xs font-black uppercase mb-1">Cinematography</h4>
-                        <p class="text-[9px] text-white/40 leading-relaxed uppercase tracking-widest">4K Brand Storytelling</p>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-white/20"></i>
+                <div class="glass-card p-5 flex items-center gap-4 border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center"><i data-lucide="video" class="text-purple-500 w-5 h-5"></i></div>
+                    <div><h4 class="text-xs font-black uppercase">Videography</h4><p class="text-[9px] text-white/40">Cinematic 4K brand storytelling</p></div>
+                    <i data-lucide="plus" class="ml-auto w-4 h-4 text-white/20"></i>
                 </div>
-                <div class="glass-card p-6 flex items-center gap-5 border-white/5">
-                    <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center shrink-0"><i data-lucide="zap" class="text-pink-500 w-6 h-6"></i></div>
-                    <div class="flex-1">
-                        <h4 class="text-xs font-black uppercase mb-1">Viral Editing</h4>
-                        <p class="text-[9px] text-white/40 leading-relaxed uppercase tracking-widest">High-Retention Cutdowns</p>
-                    </div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-white/20"></i>
+                <div class="glass-card p-5 flex items-center gap-4 border-white/5">
+                    <div class="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center"><i data-lucide="scissors" class="text-pink-500 w-5 h-5"></i></div>
+                    <div><h4 class="text-xs font-black uppercase">Video Editing</h4><p class="text-[9px] text-white/40">High-tempo viral cut-downs</p></div>
+                    <i data-lucide="plus" class="ml-auto w-4 h-4 text-white/20"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 6. THE ARCHITECT -->
+    <!-- 6. THE ARCHITECT SCREEN -->
     <div id="screen-architect" class="screen bg-[#010103]">
-        <button onclick="navigateTo('portal')" class="back-btn m-6"><i data-lucide="arrow-left" class="text-white"></i></button>
+        <button onclick="navigateTo('portal')" class="back-btn m-4"><i data-lucide="arrow-left" class="text-white"></i></button>
         <div class="p-6 text-center">
-            <div class="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-[--mt-gold] via-black to-black p-[2px] mb-8 animate-float">
-                <div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border border-white/10">
-                    <i data-lucide="user" class="text-[--mt-gold] w-14 h-14"></i>
+            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-[--mt-gold] to-black p-1 mb-6">
+                <div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden">
+                    <i data-lucide="user" class="text-[--mt-gold] w-12 h-12"></i>
                 </div>
             </div>
-            <h2 class="text-3xl font-black mb-1 uppercase tracking-tight">Sanjay Kathula</h2>
-            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[--mt-gold] mb-12">System Architect</p>
+            <h2 class="text-2xl font-black mb-1 uppercase">Sanjay Kathula</h2>
+            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-[--mt-gold] mb-8">The Architect</p>
 
-            <div class="space-y-4 text-left max-w-xs mx-auto">
-                <div class="glass-card p-6 border-white/5">
-                    <p class="text-[9px] uppercase font-black text-white/30 mb-2">Primary Directive</p>
-                    <p class="text-xs font-bold uppercase tracking-wider leading-relaxed">Full-Stack Digital Infrastructure & Aerial Systems R&D</p>
+            <div class="space-y-4 text-left">
+                <div class="glass-card p-5">
+                    <p class="text-[9px] uppercase font-black text-white/30 mb-1">Title</p>
+                    <p class="text-xs font-bold uppercase tracking-wider">Chief Systems Architect & Drone Specialist</p>
                 </div>
-                <div class="glass-card p-6 border-white/5">
-                    <p class="text-[9px] uppercase font-black text-white/30 mb-2">Communication Link</p>
+                <div class="glass-card p-5">
+                    <p class="text-[9px] uppercase font-black text-white/30 mb-1">Direct Communication</p>
                     <p class="text-xs font-bold text-[--mt-cyan]">sanjaykathulamusic@gmail.com</p>
                 </div>
-                <div class="glass-card p-6 border-white/5">
-                    <p class="text-[9px] uppercase font-black text-white/30 mb-2">Qualifications</p>
+                <div class="glass-card p-5">
+                    <p class="text-[9px] uppercase font-black text-white/30 mb-1">Credentials</p>
                     <p class="text-xs font-bold uppercase">MS Computer Science</p>
                 </div>
             </div>
 
-            <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-gold w-full mt-12 flex items-center justify-center gap-3">
-                Initialize Direct Contact <i data-lucide="mail" class="w-4 h-4"></i>
+            <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-gold w-full mt-10 flex items-center justify-center gap-2">
+                Send Direct Message <i data-lucide="mail" class="w-4 h-4"></i>
             </a>
         </div>
     </div>
 
-    <!-- GLOBAL NAV -->
-    <div id="global-nav" class="fixed bottom-0 left-0 w-full h-20 bg-black/90 backdrop-blur-2xl border-t border-white/10 z-[1000] flex justify-around items-center px-6 hidden pb-safe">
+    <!-- BOTTOM NAVIGATION (Fixed) -->
+    <div id="global-nav" class="fixed bottom-0 left-0 w-full h-20 bg-black/80 backdrop-blur-xl border-t border-white/10 z-[100] flex justify-around items-center px-4 hidden">
         <button onclick="navigateTo('portal')" class="flex flex-col items-center gap-1 text-[--mt-gold]">
-            <i data-lucide="layout-grid" class="w-5 h-5"></i>
-            <span class="text-[8px] font-black uppercase tracking-widest">Portal</span>
+            <i data-lucide="layout" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase">Portal</span>
         </button>
         <button onclick="navigateTo('services')" class="flex flex-col items-center gap-1 text-white/40">
-            <i data-lucide="package" class="w-5 h-5"></i>
-            <span class="text-[8px] font-black uppercase tracking-widest">Tiers</span>
+            <i data-lucide="zap" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase">Services</span>
         </button>
         <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-white/40">
-            <i data-lucide="message-circle" class="w-5 h-5"></i>
-            <span class="text-[8px] font-black uppercase tracking-widest">Support</span>
+            <i data-lucide="message-square" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase">Chat</span>
         </button>
         <button onclick="navigateTo('architect')" class="flex flex-col items-center gap-1 text-white/40">
-            <i data-lucide="user-check" class="w-5 h-5"></i>
-            <span class="text-[8px] font-black uppercase tracking-widest">Expert</span>
+            <i data-lucide="shield" class="w-5 h-5"></i>
+            <span class="text-[8px] font-black uppercase">Architect</span>
         </button>
     </div>
 
-    <!-- CHATBOT -->
-    <div id="chatbot-container" class="glass-card border-[--mt-gold]/30 flex shadow-2xl overflow-hidden">
-        <div class="p-4 border-b border-white/10 flex justify-between items-center bg-black/60 backdrop-blur-lg">
-            <div class="flex items-center gap-3">
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-[10px] font-black uppercase tracking-widest text-[--mt-gold]">Mighty Bot v2.0</span>
-            </div>
-            <button onclick="toggleChat()"><i data-lucide="chevron-down" class="w-5 h-5"></i></button>
+    <!-- CHATBOT INTERFACE -->
+    <div id="chatbot-container" class="glass-card border-[--mt-gold]/30 flex">
+        <div class="p-4 border-b border-white/10 flex justify-between items-center bg-black/40">
+            <span class="text-[10px] font-black uppercase tracking-widest text-[--mt-gold]">AI Assistant</span>
+            <button onclick="toggleChat()"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
-        <div id="chat-messages" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-black/20">
-            <div class="chat-bubble chat-bot text-xs leading-relaxed p-4 rounded-2xl rounded-bl-none">Greetings. I am the system assistant. How can I facilitate your digital expansion?</div>
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col">
+            <div class="chat-bubble chat-bot">Welcome Commander. How can I assist you with your digital empire today?</div>
         </div>
-        <div class="p-4 border-t border-white/10 flex gap-3 bg-black/40">
-            <input id="chat-input" type="text" placeholder="Type a query..." class="flex-1 bg-white/5 rounded-xl border border-white/10 px-4 text-xs outline-none focus:border-[--mt-gold]/50">
-            <button onclick="sendMessage()" class="w-10 h-10 bg-[--mt-gold] text-black rounded-xl flex items-center justify-center shrink-0"><i data-lucide="send" class="w-4 h-4"></i></button>
+        <div class="p-3 border-t border-white/10 flex gap-2">
+            <input id="chat-input" type="text" placeholder="Query mission status..." class="flex-1 bg-white/5 rounded-lg border border-white/10 px-3 text-xs outline-none">
+            <button onclick="sendMessage()" class="p-2 bg-[--mt-gold] text-black rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
         </div>
     </div>
 
+    <!-- SCRIPTS -->
     <script>
+        // Initialize Icons
         lucide.createIcons();
 
         let currentTier = { name: 'Starter', price: 500 };
 
-        // 1. IMPROVED THREE.JS REALISTIC ENGINE
+        // 1. THREE.JS ENGINE
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // Brighter Stars
+        // Earth Wireframe
+        const earthGeo = new THREE.SphereGeometry(15, 64, 64);
+        const earthMat = new THREE.MeshPhongMaterial({
+            color: 0x111111,
+            emissive: 0x00f0ff,
+            emissiveIntensity: 0.1,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.4
+        });
+        const earth = new THREE.Mesh(earthGeo, earthMat);
+        scene.add(earth);
+
+        // Starfield
         const starGeo = new THREE.BufferGeometry();
-        const starCount = 6000;
+        const starCount = 5000;
         const posArray = new Float32Array(starCount * 3);
-        const colorArray = new Float32Array(starCount * 3);
-        for(let i=0; i < starCount * 3; i+=3) {
-            posArray[i] = (Math.random() - 0.5) * 600;
-            posArray[i+1] = (Math.random() - 0.5) * 600;
-            posArray[i+2] = (Math.random() - 0.5) * 600;
-            
-            // Randomly brighter white/blue/gold stars
-            const r = Math.random();
-            colorArray[i] = 1;
-            colorArray[i+1] = r > 0.8 ? 0.9 : 1;
-            colorArray[i+2] = r > 0.9 ? 0.7 : 1;
+        for(let i=0; i < starCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 800;
         }
         starGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        starGeo.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
-        const starMat = new THREE.PointsMaterial({ 
-            size: 0.8, 
-            vertexColors: true, 
-            transparent: true,
-            opacity: 1,
-            blending: THREE.AdditiveBlending
-        });
+        const starMat = new THREE.PointsMaterial({ size: 0.5, color: 0xffffff });
         const stars = new THREE.Points(starGeo, starMat);
         scene.add(stars);
 
-        // Realistic Earth with atmospheric glow
-        const earthGroup = new THREE.Group();
-        scene.add(earthGroup);
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(20, 20, 20);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
 
-        const earthGeo = new THREE.SphereGeometry(15, 64, 64);
-        const earthMat = new THREE.MeshPhongMaterial({
-            color: 0x050505,
-            emissive: 0x111111,
-            specular: 0x222222,
-            shininess: 25,
-            wireframe: false,
-            flatShading: false
-        });
-        const earth = new THREE.Mesh(earthGeo, earthMat);
-        earthGroup.add(earth);
-
-        // City Lights / Tech Overlay (Wireframe Glow)
-        const techGeo = new THREE.SphereGeometry(15.1, 48, 48);
-        const techMat = new THREE.MeshBasicMaterial({
-            color: 0x00f0ff,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.15,
-            blending: THREE.AdditiveBlending
-        });
-        const techLayer = new THREE.Mesh(techGeo, techMat);
-        earthGroup.add(techLayer);
-
-        // Atmosphere Glow
-        const atmosGeo = new THREE.SphereGeometry(15.5, 64, 64);
-        const atmosMat = new THREE.ShaderMaterial({
-            transparent: true,
-            side: THREE.BackSide,
-            blending: THREE.AdditiveBlending,
-            uniforms: {
-                glowColor: { value: new THREE.Color(0x00f0ff) },
-                viewVector: { value: camera.position }
-            },
-            vertexShader: `
-                uniform vec3 viewVector;
-                varying float intensity;
-                void main() {
-                    vec3 vNormal = normalize( normalMatrix * normal );
-                    vec3 vNormel = normalize( normalMatrix * viewVector );
-                    intensity = pow( 0.6 - dot(vNormal, vNormel), 2.0 );
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-                }
-            `,
-            fragmentShader: `
-                uniform vec3 glowColor;
-                varying float intensity;
-                void main() {
-                    vec3 glow = glowColor * intensity;
-                    gl_FragColor = vec4( glow, intensity );
-                }
-            `
-        });
-        const atmos = new THREE.Mesh(atmosGeo, atmosMat);
-        earthGroup.add(atmos);
-
-        const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        mainLight.position.set(50, 50, 50);
-        scene.add(mainLight);
-        scene.add(new THREE.AmbientLight(0x111111));
-
-        camera.position.z = 100;
+        camera.position.z = 60;
 
         function animate() {
             requestAnimationFrame(animate);
-            earth.rotation.y += 0.0008;
-            techLayer.rotation.y += 0.001;
-            stars.rotation.y += 0.0001;
+            earth.rotation.y += 0.001;
+            stars.rotation.y += 0.0002;
             renderer.render(scene, camera);
         }
         animate();
 
-        // 2. INTRO TIMELINE
-        const introTl = gsap.timeline();
-        introTl.to("#intro-logo", { opacity: 1, y: 0, duration: 1.2, ease: "power4.out" }, 0.5)
-               .to("#intro-title", { opacity: 1, duration: 1.5, ease: "power2.out" }, 1.0)
-               .to("#intro-loader", { opacity: 1, duration: 0.8 }, 1.5)
-               .to("#loader-fill", { width: "100%", duration: 2.5, ease: "power1.inOut" }, 1.8)
-               .to("#intro-cta", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, 4.3);
+        // 2. GSAP SCROLL ANIMATIONS (Intro Screen Only)
+        gsap.to("#intro-logo", { opacity: 1, y: 0, duration: 1, delay: 0.5 });
+        gsap.to("#intro-title", { opacity: 1, y: 0, duration: 1, delay: 0.8 });
+        gsap.to("#intro-subtitle", { opacity: 1, y: 0, duration: 1, delay: 1.1 });
+        gsap.to("#intro-cta", { opacity: 1, y: 0, duration: 1, delay: 1.4 });
 
-        function startApp() {
-            gsap.to(camera.position, { z: 40, duration: 2, ease: "power4.inOut" });
-            gsap.to("#screen-intro", { opacity: 0, duration: 0.8, onComplete: () => navigateTo('services') });
-        }
+        // Camera zoom on scroll logic
+        window.addEventListener('scroll', () => {
+            const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+            if(document.getElementById('screen-intro').classList.contains('active')) {
+                camera.position.z = 60 - (scrollPercent * 40);
+                earth.scale.set(1 + scrollPercent*0.5, 1 + scrollPercent*0.5, 1 + scrollPercent*0.5);
+                
+                // Transition effect at 90% scroll
+                if(scrollPercent > 0.95) {
+                    navigateTo('services');
+                }
+            }
+        });
 
-        // 3. NAVIGATION logic
+        // 3. NAVIGATION LOGIC
         function navigateTo(screenId) {
+            // Hide all screens
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-' + screenId).classList.add('active');
-            gsap.fromTo('#screen-' + screenId, { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.6 });
-            
-            const navScreens = ['portal', 'services', 'architect', 'thankyou'];
-            document.getElementById('global-nav').style.display = navScreens.includes(screenId) ? 'flex' : 'none';
-            document.getElementById('chatbot-container').style.display = 'none';
+            const target = document.getElementById('screen-' + screenId);
+            target.classList.add('active');
             window.scrollTo(0, 0);
+
+            // Global Nav Visibility
+            const navScreens = ['portal', 'services', 'architect', 'thankyou'];
+            if(navScreens.includes(screenId)) {
+                document.getElementById('global-nav').classList.remove('hidden');
+            } else {
+                document.getElementById('global-nav').classList.add('hidden');
+            }
+
+            // Close chat on screen change
+            document.getElementById('chatbot-container').style.display = 'none';
         }
 
+        // 4. ACTION LOGIC
         function selectTier(name, price) {
             currentTier = { name, price };
             document.getElementById('display-tier-name').innerText = name;
@@ -548,28 +500,34 @@
         }
 
         function processPayment() {
-            const btn = event.currentTarget;
-            btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> AUTHORIZING...`;
+            // Simulated payment delay
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> SECURING ASSETS...`;
             lucide.createIcons();
             
             setTimeout(() => {
                 document.getElementById('inv-tier').innerText = currentTier.name;
                 document.getElementById('inv-price').innerText = '$' + currentTier.price + '.00';
-                document.getElementById('invoice-date').innerText = "Processed on: " + new Date().toLocaleDateString();
+                document.getElementById('invoice-date').innerText = new Date().toLocaleDateString();
                 navigateTo('thankyou');
-            }, 2500);
+            }, 2000);
         }
 
+        function downloadInvoice() {
+            const btn = event.target;
+            btn.innerHTML = `Generating Secure PDF...`;
+            setTimeout(() => {
+                window.print(); // Native fallback for downloadable PDF
+                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Invoice Saved`;
+                lucide.createIcons();
+            }, 1000);
+        }
+
+        // 5. CHATBOT LOGIC
         function toggleChat() {
             const chat = document.getElementById('chatbot-container');
-            const isFlex = chat.style.display === 'flex';
-            if(!isFlex) {
-                chat.style.display = 'flex';
-                gsap.fromTo(chat, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 });
-            } else {
-                gsap.to(chat, { y: 20, opacity: 0, duration: 0.3, onComplete: () => chat.style.display = 'none' });
-            }
+            chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
         }
 
         function sendMessage() {
@@ -577,33 +535,44 @@
             const box = document.getElementById('chat-messages');
             if(!input.value.trim()) return;
 
-            const u = document.createElement('div');
-            u.className = 'chat-bubble chat-user text-xs p-4 rounded-2xl rounded-br-none';
-            u.innerText = input.value;
-            box.appendChild(u);
-            
-            const q = input.value.toLowerCase();
+            // User Message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-bubble chat-user';
+            userMsg.innerText = input.value;
+            box.appendChild(userMsg);
+
+            const query = input.value.toLowerCase();
             input.value = '';
             box.scrollTop = box.scrollHeight;
 
+            // Bot Response
             setTimeout(() => {
-                const b = document.createElement('div');
-                b.className = 'chat-bubble chat-bot text-xs p-4 rounded-2xl rounded-bl-none';
-                let r = "Connecting to Architect's database... Please hold.";
-                if(q.includes('price')) r = "Starter: $500, Growth: $700, Dominion: $1000. All tiers include high-speed deployment.";
-                if(q.includes('drone')) r = "Drone units are currently operational. Contact the Architect for aerial mission planning.";
-                b.innerText = r;
-                box.appendChild(b);
+                const botMsg = document.createElement('div');
+                botMsg.className = 'chat-bubble chat-bot';
+                
+                let reply = "The Architect is currently deploying code. Please contact sanjaykathulamusic@gmail.com for urgent missions.";
+                
+                if(query.includes('price') || query.includes('cost')) {
+                    reply = "Our tiers start at $500 (Starter), $700 (Growth), and $1000 (Dominion). Which one fits your mission objectives?";
+                } else if(query.includes('drone') || query.includes('photo') || query.includes('video')) {
+                    reply = "We offer premium Drone Photography and Cinematic Video Editing as add-ons. You can select them in your Portal!";
+                } else if(query.includes('status') || query.includes('update')) {
+                    reply = "Infrastructure stabilization is currently at 45%. Check the Portal for real-time analytics.";
+                }
+                
+                botMsg.innerText = reply;
+                box.appendChild(botMsg);
                 box.scrollTop = box.scrollHeight;
-                lucide.createIcons();
             }, 1000);
         }
 
+        // Handling Resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
     </script>
 </body>
 </html>

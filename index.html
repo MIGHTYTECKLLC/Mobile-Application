@@ -2,577 +2,1293 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Critical meta tags for native mobile app feel on iOS and Android -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Mighty Teck | Galactic Digital Supremacy</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#010103">
+    <title>Mighty Teck App</title>
     
-    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#d4af37' // Injects the custom gold color into Tailwind
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
         :root {
-            --mt-gold: #d4af37;
-            --mt-cyan: #00f0ff;
-            --mt-bg: #010103;
+            --cyan: #00f0ff;
+            --gold: #d4af37;
+            --bg-dark: #010103;
+            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+            --safe-area-top: env(safe-area-inset-top, 20px);
         }
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--mt-bg);
-            color: white;
+        /* Prevent overscroll bounce on iOS */
+        body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow-x: hidden;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            margin: 0;
+            overflow: hidden; /* Lock body scrolling */
             -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
         }
 
-        h1, h2, .syncopate { font-family: 'Syncopate', sans-serif; text-transform: uppercase; }
+        .heading-font { font-family: 'Syncopate', sans-serif; }
 
-        /* 3D Background */
-        #canvas-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* Screen Management */
-        .screen {
+        /* Mobile App Container (simulates phone screen on desktop, full screen on mobile) */
+        #app-container {
+            width: 100vw;
+            height: 100dvh; /* Dynamic viewport height for mobile */
             position: relative;
-            z-index: 10;
-            min-height: 100vh;
-            width: 100%;
-            display: none;
-        }
-        .screen.active { display: block; }
-
-        /* Overlay Gradients */
-        .vignette {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle, transparent 20%, rgba(1, 1, 3, 0.8) 100%);
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* UI Elements */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1.5rem;
-        }
-
-        .btn-gold {
-            background: var(--mt-gold);
-            color: black;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            padding: 1rem 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-            transition: all 0.3s ease;
-        }
-        .btn-gold:active { transform: scale(0.95); opacity: 0.9; }
-
-        /* Chatbot Styles */
-        #chatbot-container {
-            position: fixed;
-            bottom: 6rem; right: 1rem;
-            width: 90%; max-width: 350px;
-            height: 450px;
-            z-index: 100;
-            display: none;
+            margin: 0 auto;
+            background: var(--bg-dark);
+            overflow: hidden;
+            display: flex;
             flex-direction: column;
         }
-        .chat-bubble {
-            padding: 0.75rem 1rem;
-            border-radius: 1rem;
-            font-size: 0.85rem;
-            max-width: 80%;
-            margin-bottom: 0.5rem;
+
+        @media (min-width: 768px) {
+            #app-container {
+                width: 400px;
+                height: 850px;
+                max-height: 95vh;
+                margin-top: 2.5vh;
+                border-radius: 40px;
+                border: 8px solid #222;
+                box-shadow: 0 0 50px rgba(0,240,255,0.1);
+            }
         }
-        .chat-bot { background: rgba(255, 255, 255, 0.1); align-self: flex-start; border-bottom-left-radius: 0.2rem; }
-        .chat-user { background: var(--mt-gold); color: black; align-self: flex-end; border-bottom-right-radius: 0.2rem; font-weight: 600; }
 
-        /* Scroll Intro Sections */
-        .intro-trigger { height: 300vh; }
+        #global-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-        .back-btn {
-            position: sticky;
-            top: 1rem;
-            left: 1rem;
+        /* App Header */
+        .app-header {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: calc(15px + var(--safe-area-top)) 20px 15px;
+            background: linear-gradient(to bottom, rgba(1,1,3,0.9), rgba(1,1,3,0));
+            z-index: 40;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Content Area */
+        .app-content {
+            flex: 1;
+            position: relative;
+            z-index: 10;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-top: calc(80px + var(--safe-area-top));
+            padding-bottom: calc(90px + var(--safe-area-bottom));
+            scroll-behavior: smooth;
+        }
+
+        /* Hide scrollbar for cleaner app look */
+        .app-content::-webkit-scrollbar { display: none; }
+        .app-content { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            min-height: 100%;
+            padding: 0 20px;
+            opacity: 0;
+        }
+        .screen.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Bottom Nav Bar */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: var(--safe-area-bottom);
             z-index: 50;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            display: flex; items-center: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: calc(70px + var(--safe-area-bottom));
         }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+            color: rgba(255,255,255,0.4);
+            font-size: 9px; /* Slightly reduced to fit 6 items */
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active { color: var(--cyan); }
+        .nav-item.active .icon-wrapper { transform: translateY(-4px); }
+        
+        .icon-wrapper { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Cyber Glass Cards Mobile */
+        .cyber-glass {
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .text-gradient-gold { background: linear-gradient(135deg, #fff, #d4af37, #8a701d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .text-gradient-cyan { background: linear-gradient(135deg, #fff, #00f0ff, #005a61); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .btn-mighty {
+            background: var(--gold);
+            color: #000;
+            text-transform: uppercase;
+            font-family: 'Syncopate', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            padding: 1rem;
+            border-radius: 100px;
+            text-align: center;
+            display: block;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+        .btn-mighty.cyan {
+            background: var(--cyan);
+            box-shadow: 0 5px 15px rgba(0, 240, 255, 0.3);
+        }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-dark);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .loader-ring {
+            width: 60px; height: 60px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--cyan);
+            border-bottom-color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
-    <div class="vignette"></div>
+<div id="app-container">
+    
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="loader-ring mb-8"></div>
+        <div class="heading-font text-white font-black tracking-[0.3em] text-sm">MIGHTY TECK</div>
+        <div class="text-[8px] text-white/40 tracking-[0.2em] mt-2 uppercase">Connecting to Grid...</div>
+    </div>
 
-    <!-- 1. INTRO / SCROLL SCREEN -->
-    <div id="screen-intro" class="screen active overflow-y-auto">
-        <div class="intro-trigger">
-            <!-- Scroll Content -->
-            <div class="h-screen flex flex-col items-center justify-center text-center px-6 sticky top-0">
-                <div class="mb-6 opacity-0" id="intro-logo">
-                    <div class="w-20 h-20 border-2 border-[--mt-gold] rounded-2xl flex items-center justify-center mx-auto bg-black/50">
-                        <span class="text-[--mt-gold] font-black text-[10px] leading-tight">MIGHTY<br>TECK</span>
-                    </div>
+    <!-- 3D Background -->
+    <canvas id="global-canvas"></canvas>
+
+    <!-- Header -->
+    <header class="app-header relative flex items-center justify-center">
+        <button id="back-btn" class="absolute left-5 bottom-[15px] text-white/70 hover:text-white transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+        </button>
+        <h1 class="heading-font text-white font-black tracking-[0.2em] text-sm">
+            MIGHTY <span class="text-gradient-gold">TECK</span>
+        </h1>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-content" id="scroll-container">
+        
+        <!-- SCREEN: HOME -->
+        <div id="screen-home" class="screen active">
+            <div class="flex-1 flex flex-col justify-center items-center text-center py-10">
+                <span class="inline-block text-cyan-400 text-[9px] font-black tracking-[0.5em] uppercase mb-4">Engineered For</span>
+                <h2 class="heading-font text-4xl leading-[1.1] font-black text-white mb-6">
+                    MARKET<br><span class="text-gradient-cyan">DOMINANCE</span>
+                </h2>
+                <p class="text-white/60 text-sm mb-10 font-light leading-relaxed px-2">
+                    Engineering high-performance digital engines and immersive architectures for ambitious businesses.
+                </p>
+                <div class="cyber-glass w-full text-left mb-6 border-gold/30" style="background: rgba(212, 175, 55, 0.05);">
+                    <h3 class="text-gold font-bold text-xs uppercase tracking-widest mb-2">The Reality</h3>
+                    <p class="text-white/80 text-sm leading-relaxed">If your business is not online, it is out of business.</p>
                 </div>
-                <h1 id="intro-title" class="text-3xl md:text-5xl font-black mb-4 opacity-0">Galactic Digital<br><span class="text-[--mt-gold]">Supremacy</span></h1>
-                <p id="intro-subtitle" class="text-white/40 text-[10px] tracking-[0.5em] uppercase font-bold opacity-0">Scroll to Initiate Command</p>
+            </div>
+        </div>
+
+        <!-- SCREEN: SERVICES -->
+        <div id="screen-services" class="screen">
+            <div class="py-4">
+                <span class="text-gold text-[9px] font-black tracking-[0.5em] uppercase mb-2 block">Arsenal</span>
+                <h2 class="heading-font text-2xl font-black text-white mb-6">SERVICES</h2>
                 
-                <div id="intro-cta" class="mt-12 opacity-0">
-                    <button onclick="navigateTo('services')" class="btn-gold flex items-center gap-3">
-                        Enter System <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                <div class="cyber-glass flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-cyan-400/10 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="box" class="text-cyan-400 w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold text-sm mb-1">3D Immersive Web</h4>
+                            <p class="text-xs text-white/50">WebGL & Three.js environments.</p>
+                        </div>
+                    </div>
+                    <button onclick="inquireService('3D Immersive Web')" class="w-full bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 text-[10px] font-bold uppercase py-2.5 rounded-lg active:bg-cyan-400/20 transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-3 h-3"></i> Send Inquiry
+                    </button>
+                </div>
+
+                <div class="cyber-glass flex flex-col gap-4 border-gold/20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="camera" class="text-gold w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold text-sm mb-1">Drone Photography</h4>
+                            <p class="text-xs text-white/50">High-altitude marketing visuals.</p>
+                        </div>
+                    </div>
+                    <button onclick="inquireService('Drone Photography')" class="w-full bg-gold/10 text-gold border border-gold/20 text-[10px] font-bold uppercase py-2.5 rounded-lg active:bg-gold/20 transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-3 h-3"></i> Send Inquiry
+                    </button>
+                </div>
+
+                <div class="cyber-glass flex flex-col gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-cyan-400/10 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="video" class="text-cyan-400 w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold text-sm mb-1">Videography & Edits</h4>
+                            <p class="text-xs text-white/50">High-tempo social engagement.</p>
+                        </div>
+                    </div>
+                    <button onclick="inquireService('Videography & Editing')" class="w-full bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 text-[10px] font-bold uppercase py-2.5 rounded-lg active:bg-cyan-400/20 transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-3 h-3"></i> Send Inquiry
+                    </button>
+                </div>
+                
+                <div class="cyber-glass flex flex-col gap-4 border-gold/20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="cpu" class="text-gold w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold text-sm mb-1">Quadcopter R&D</h4>
+                            <p class="text-xs text-white/50">Autonomous flight systems.</p>
+                        </div>
+                    </div>
+                    <button onclick="inquireService('Quadcopter R&D')" class="w-full bg-gold/10 text-gold border border-gold/20 text-[10px] font-bold uppercase py-2.5 rounded-lg active:bg-gold/20 transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-3 h-3"></i> Send Inquiry
                     </button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 2. SERVICES SCREEN -->
-    <div id="screen-services" class="screen bg-[#010103]/90">
-        <button onclick="navigateTo('intro')" class="back-btn m-4"><i data-lucide="arrow-left" class="text-white"></i></button>
-        <div class="p-6 pt-2 pb-32">
-            <h2 class="text-2xl font-black mb-2 uppercase">Service Tiers</h2>
-            <p class="text-white/40 text-xs mb-8 tracking-wider uppercase">Select your infrastructure level</p>
+        <!-- SCREEN: PRICING -->
+        <div id="screen-pricing" class="screen">
+            <div class="py-4">
+                <span class="text-cyan-400 text-[9px] font-black tracking-[0.5em] uppercase mb-2 block">Acquisition</span>
+                <h2 class="heading-font text-2xl font-black text-white mb-6">MODELS</h2>
 
-            <div class="space-y-6">
-                <!-- Card 1 -->
-                <div class="glass-card p-6 border-white/5" onclick="selectTier('Starter', 500)">
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-sm font-black text-cyan-400 uppercase tracking-widest">Starter</h4>
-                        <span class="text-2xl font-black">$500</span>
-                    </div>
-                    <ul class="text-[11px] space-y-2 text-white/60 mb-6">
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> 5 Page Professional Site</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Mobile Responsive</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Standard Hosting Setup</li>
+                <!-- Growth Plan (Highlighted) -->
+                <div class="cyber-glass border-gold/40" style="background: rgba(212, 175, 55, 0.08);">
+                    <div class="absolute top-4 right-4 bg-gold/20 text-gold text-[8px] font-bold px-2 py-1 rounded tracking-widest">POPULAR</div>
+                    <h4 class="text-white uppercase tracking-[0.2em] text-[10px] font-black mb-2">Growth</h4>
+                    <div class="text-4xl font-black mb-4 text-gradient-gold heading-font">$700</div>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start gap-2 text-xs text-white/80"><i data-lucide="check" class="text-gold w-3 h-3 mt-0.5"></i> 5 Page Professional Site</li>
+                        <li class="flex items-start gap-2 text-xs text-white/80"><i data-lucide="check" class="text-gold w-3 h-3 mt-0.5"></i> FB & Instagram Shop</li>
+                        <li class="flex items-start gap-2 text-xs text-white/80"><i data-lucide="check" class="text-gold w-3 h-3 mt-0.5"></i> Meta Pixel Tracking</li>
                     </ul>
-                    <button class="w-full py-3 rounded-lg border border-cyan-400/30 text-cyan-400 text-[10px] font-black uppercase">Select Starter</button>
+                    <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-mighty">Select Plan</a>
                 </div>
 
-                <!-- Card 2 -->
-                <div class="glass-card p-6 border-[--mt-gold]/40 bg-[--mt-gold]/5" onclick="selectTier('Growth', 700)">
-                    <div class="absolute -top-3 right-6 bg-[--mt-gold] text-black text-[8px] px-3 py-1 rounded-full font-black uppercase tracking-tighter">Recommended</div>
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-sm font-black text-[--mt-gold] uppercase tracking-widest">Growth</h4>
-                        <span class="text-2xl font-black">$700</span>
-                    </div>
-                    <ul class="text-[11px] space-y-2 text-white/60 mb-6">
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Everything in Starter</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Meta Pixel & Analytics</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Social Media Integration</li>
+                <!-- Starter Plan -->
+                <div class="cyber-glass border-cyan-400/20">
+                    <h4 class="text-white uppercase tracking-[0.2em] text-[10px] font-black mb-2">Starter</h4>
+                    <div class="text-3xl font-black mb-4 text-white heading-font">$500</div>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start gap-2 text-xs text-white/60"><i data-lucide="check" class="text-cyan-400 w-3 h-3 mt-0.5"></i> Basic 5 Page Site</li>
+                        <li class="flex items-start gap-2 text-xs text-white/60"><i data-lucide="check" class="text-cyan-400 w-3 h-3 mt-0.5"></i> Mobile Responsive</li>
                     </ul>
-                    <button class="w-full py-3 rounded-lg bg-[--mt-gold] text-black text-[10px] font-black uppercase">Deploy Growth</button>
+                    <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-mighty cyan text-xs py-3">Select Plan</a>
                 </div>
-
-                <!-- Card 3 -->
-                <div class="glass-card p-6 border-white/5" onclick="selectTier('Dominion', 1000)">
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-sm font-black text-white uppercase tracking-widest">Dominion</h4>
-                        <span class="text-2xl font-black">$1000</span>
-                    </div>
-                    <ul class="text-[11px] space-y-2 text-white/60 mb-6">
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Full Enterprise Setup</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> 6 Months Support</li>
-                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-[--mt-gold]"></i> Custom Logic Engines</li>
+                
+                <!-- Dominion Plan -->
+                <div class="cyber-glass border-cyan-400/20">
+                    <h4 class="text-white uppercase tracking-[0.2em] text-[10px] font-black mb-2">Dominion</h4>
+                    <div class="text-3xl font-black mb-4 text-white heading-font">$1000</div>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start gap-2 text-xs text-white/60"><i data-lucide="check" class="text-cyan-400 w-3 h-3 mt-0.5"></i> Full Enterprise Setup</li>
+                        <li class="flex items-start gap-2 text-xs text-white/60"><i data-lucide="check" class="text-cyan-400 w-3 h-3 mt-0.5"></i> 6 Months VIP Maint.</li>
                     </ul>
-                    <button class="w-full py-3 rounded-lg border border-white/30 text-white text-[10px] font-black uppercase">Acquire Dominion</button>
+                    <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-mighty cyan text-xs py-3">Select Plan</a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 3. PAYMENT / CHECKOUT -->
-    <div id="screen-payment" class="screen bg-[#010103]">
-        <button onclick="navigateTo('services')" class="back-btn m-4"><i data-lucide="arrow-left" class="text-white"></i></button>
-        <div class="p-6">
-            <h2 class="text-2xl font-black mb-8 uppercase">Secure Checkout</h2>
-            
-            <div class="glass-card p-6 mb-8">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-white/40 text-xs uppercase font-bold">Selected Mission</span>
-                    <span id="display-tier-name" class="font-black text-[--mt-gold] uppercase">Starter</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-white/40 text-xs uppercase font-bold">Investment</span>
-                    <span id="display-tier-price" class="font-black text-xl">$500.00</span>
+        <!-- SCREEN: CONTACT -->
+        <div id="screen-contact" class="screen">
+            <div class="py-4 flex-1 flex flex-col">
+                <span class="text-gold text-[9px] font-black tracking-[0.5em] uppercase mb-2 block">Connect</span>
+                <h2 class="heading-font text-2xl font-black text-white mb-6">DIRECTOR</h2>
+
+                <div class="cyber-glass flex-1 flex flex-col justify-center items-center text-center border-gold/30">
+                    <div class="w-20 h-20 rounded-full bg-white/5 border-2 border-gold/50 flex items-center justify-center mb-6">
+                        <i data-lucide="user" class="text-gold w-8 h-8"></i>
+                    </div>
+                    <h3 class="heading-font text-2xl font-black mb-1 text-white">SANJAY</h3>
+                    <h3 class="heading-font text-xl font-black mb-6 text-gradient-gold">KATHULA</h3>
+                    
+                    <div class="w-full bg-white/5 rounded-xl p-4 mb-4 flex items-center gap-3">
+                        <i data-lucide="graduation-cap" class="text-cyan-400 w-5 h-5 flex-shrink-0"></i>
+                        <span class="text-sm text-white/80">MS Computer Science</span>
+                    </div>
+                    
+                    <a href="mailto:sanjaykathulamusic@gmail.com" class="w-full bg-white/5 rounded-xl p-4 mb-8 flex items-center gap-3 active:bg-white/10 transition-colors">
+                        <i data-lucide="mail" class="text-gold w-5 h-5 flex-shrink-0"></i>
+                        <span class="text-xs text-white/80 truncate">sanjaykathulamusic@gmail.com</span>
+                    </a>
+
+                    <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-mighty w-full">Commence Project</a>
                 </div>
             </div>
-
-            <div class="space-y-4 mb-10">
-                <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
-                    <i data-lucide="credit-card" class="text-white/40 w-5 h-5"></i>
-                    <input type="text" placeholder="Card Number" class="bg-transparent border-none outline-none text-sm w-full font-mono" value="4242 4242 4242 4242">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
-                        <input type="text" placeholder="MM/YY" class="bg-transparent border-none outline-none text-sm w-full font-mono" value="12/28">
-                    </div>
-                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
-                        <input type="password" placeholder="CVC" class="bg-transparent border-none outline-none text-sm w-full font-mono" value="123">
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="processPayment()" class="btn-gold w-full flex items-center justify-center gap-3">
-                Authorize Payment <i data-lucide="lock" class="w-5 h-5"></i>
-            </button>
         </div>
-    </div>
 
-    <!-- 4. THANK YOU / INVOICE SCREEN -->
-    <div id="screen-thankyou" class="screen bg-[#010103]">
-        <div class="p-6 pt-20 text-center">
-            <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/50">
-                <i data-lucide="check" class="text-green-500 w-10 h-10"></i>
-            </div>
-            <h2 class="text-3xl font-black mb-4 uppercase">Mission<br><span class="text-[--mt-gold]">Accepted</span></h2>
-            <p class="text-white/60 text-sm mb-12">Your payment was successful. The Architect has been notified and your environment is being provisioned.</p>
-
-            <!-- Invoice Area -->
-            <div id="invoice-block" class="bg-white text-black p-6 rounded-2xl text-left mb-8 shadow-2xl">
-                <div class="flex justify-between items-start mb-6">
+        <!-- SCREEN: CLIENTS ROSTER -->
+        <div id="screen-clients" class="screen">
+            <div class="py-4 pb-8">
+                <div class="flex justify-between items-end mb-6">
                     <div>
-                        <h4 class="font-black text-lg">MIGHTY TECK LLC</h4>
-                        <p class="text-[9px] uppercase font-bold text-gray-400">Transaction ID: #MT-8829</p>
+                        <span class="text-cyan-400 text-[9px] font-black tracking-[0.5em] uppercase mb-2 block">Deployments</span>
+                        <h2 class="heading-font text-2xl font-black text-white">ROSTER</h2>
                     </div>
-                    <div class="text-right">
-                        <p class="text-[9px] font-bold text-gray-400 uppercase">Date</p>
-                        <p class="text-[10px] font-black" id="invoice-date">--/--/--</p>
-                    </div>
+                    <!-- Secret Admin Trigger (Now calls auth function) -->
+                    <button onclick="openAdminAuth()" class="bg-white/5 border border-white/10 p-2 rounded-lg text-white/40 hover:text-gold transition-colors active:scale-95 mb-1 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+                        <i data-lucide="shield" class="w-4 h-4"></i>
+                    </button>
                 </div>
-                <div class="border-t border-gray-200 pt-4 mb-4">
-                    <div class="flex justify-between mb-2">
-                        <span class="text-xs font-bold text-gray-500">Service</span>
-                        <span class="text-xs font-black uppercase" id="inv-tier">Starter</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-xs font-bold text-gray-500">Total</span>
-                        <span class="text-lg font-black" id="inv-price">$500.00</span>
-                    </div>
+                
+                <!-- Dynamic Roster Container -->
+                <div id="roster-container" class="space-y-4">
+                    <!-- Cards will be injected here by JavaScript -->
                 </div>
-                <p class="text-[8px] text-gray-400 text-center border-t border-gray-100 pt-4 uppercase font-bold">Status: Fully Paid & Verified</p>
             </div>
-
-            <button onclick="downloadInvoice()" class="flex items-center justify-center gap-2 text-[--mt-gold] font-black uppercase text-xs mb-8 mx-auto">
-                <i data-lucide="download" class="w-4 h-4"></i> Download Invoice (PDF)
-            </button>
-
-            <button onclick="navigateTo('portal')" class="btn-gold w-full">Go to Client Portal</button>
         </div>
-    </div>
 
-    <!-- 5. CLIENT PORTAL SCREEN -->
-    <div id="screen-portal" class="screen bg-[#010103]">
-        <div class="p-6">
-            <header class="flex justify-between items-center mb-8">
-                <div>
-                    <p class="text-white/40 text-[9px] font-black uppercase tracking-widest">Client Portal</p>
-                    <h2 class="text-xl font-black uppercase">Commander Portal</h2>
+        <!-- SCREEN: ADMIN / COMMAND CENTER -->
+        <div id="screen-admin" class="screen">
+            <div class="py-4 pb-8">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <span class="text-gold text-[9px] font-black tracking-[0.5em] uppercase mb-2 block">Owner Portal</span>
+                        <h2 class="heading-font text-2xl font-black text-white text-gradient-gold">COMMAND</h2>
+                    </div>
                 </div>
-                <button onclick="navigateTo('architect')" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                    <i data-lucide="user" class="w-5 h-5"></i>
+                
+                <p class="text-[10px] text-white/50 uppercase tracking-widest mb-4">Live Deployment Controls</p>
+
+                <!-- Dynamic Admin Controls Container -->
+                <div id="admin-container" class="space-y-4 mb-6">
+                    <!-- Admin input cards injected here -->
+                </div>
+
+                <button onclick="syncAndReturnToRoster()" class="btn-mighty cyan w-full flex justify-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 mt-0.5"></i> Save & Sync
                 </button>
-            </header>
+            </div>
+        </div>
 
-            <!-- Project Progress -->
-            <div class="glass-card p-6 mb-8 border-[--mt-gold]/20">
+        <!-- SCREEN: PORTAL (Onboarding & Checkout) -->
+        <div id="screen-portal" class="screen">
+            <div class="py-4 flex-1 flex flex-col pb-10">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xs font-black uppercase tracking-wider">Active Infrastructure</h3>
-                    <span class="text-[9px] bg-green-500/20 text-green-500 px-2 py-1 rounded-full font-black uppercase">Stable</span>
+                    <div>
+                        <span id="portal-subtitle" class="text-cyan-400 text-[9px] font-black tracking-[0.5em] uppercase mb-1 block">Phase 1</span>
+                        <h2 id="portal-title" class="heading-font text-2xl font-black text-white">ONBOARDING</h2>
+                    </div>
+                    <div id="portal-indicator" class="text-white/40 text-[10px] font-bold">1 / 3</div>
                 </div>
-                <div class="h-2 w-full bg-white/5 rounded-full mb-3 overflow-hidden">
-                    <div class="h-full bg-[--mt-gold] w-[45%] animate-pulse"></div>
-                </div>
-                <p class="text-[10px] text-white/40">Phase: <span class="text-white font-bold uppercase">Development (45%)</span></p>
-            </div>
-
-            <h3 class="text-xs font-black uppercase tracking-[0.2em] mb-4 text-white/60">Additional Ecosystem Services</h3>
-            <div class="grid grid-cols-1 gap-4 mb-32">
-                <div class="glass-card p-5 flex items-center gap-4 border-white/5" onclick="alert('Inquiry sent for Drone services!')">
-                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center"><i data-lucide="camera" class="text-blue-500 w-5 h-5"></i></div>
-                    <div><h4 class="text-xs font-black uppercase">Drone Photography</h4><p class="text-[9px] text-white/40">Aerial intelligence & visuals</p></div>
-                    <i data-lucide="plus" class="ml-auto w-4 h-4 text-white/20"></i>
-                </div>
-                <div class="glass-card p-5 flex items-center gap-4 border-white/5">
-                    <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center"><i data-lucide="video" class="text-purple-500 w-5 h-5"></i></div>
-                    <div><h4 class="text-xs font-black uppercase">Videography</h4><p class="text-[9px] text-white/40">Cinematic 4K brand storytelling</p></div>
-                    <i data-lucide="plus" class="ml-auto w-4 h-4 text-white/20"></i>
-                </div>
-                <div class="glass-card p-5 flex items-center gap-4 border-white/5">
-                    <div class="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center"><i data-lucide="scissors" class="text-pink-500 w-5 h-5"></i></div>
-                    <div><h4 class="text-xs font-black uppercase">Video Editing</h4><p class="text-[9px] text-white/40">High-tempo viral cut-downs</p></div>
-                    <i data-lucide="plus" class="ml-auto w-4 h-4 text-white/20"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 6. THE ARCHITECT SCREEN -->
-    <div id="screen-architect" class="screen bg-[#010103]">
-        <button onclick="navigateTo('portal')" class="back-btn m-4"><i data-lucide="arrow-left" class="text-white"></i></button>
-        <div class="p-6 text-center">
-            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-[--mt-gold] to-black p-1 mb-6">
-                <div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden">
-                    <i data-lucide="user" class="text-[--mt-gold] w-12 h-12"></i>
-                </div>
-            </div>
-            <h2 class="text-2xl font-black mb-1 uppercase">Sanjay Kathula</h2>
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-[--mt-gold] mb-8">The Architect</p>
-
-            <div class="space-y-4 text-left">
-                <div class="glass-card p-5">
-                    <p class="text-[9px] uppercase font-black text-white/30 mb-1">Title</p>
-                    <p class="text-xs font-bold uppercase tracking-wider">Chief Systems Architect & Drone Specialist</p>
-                </div>
-                <div class="glass-card p-5">
-                    <p class="text-[9px] uppercase font-black text-white/30 mb-1">Direct Communication</p>
-                    <p class="text-xs font-bold text-[--mt-cyan]">sanjaykathulamusic@gmail.com</p>
-                </div>
-                <div class="glass-card p-5">
-                    <p class="text-[9px] uppercase font-black text-white/30 mb-1">Credentials</p>
-                    <p class="text-xs font-bold uppercase">MS Computer Science</p>
-                </div>
-            </div>
-
-            <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-gold w-full mt-10 flex items-center justify-center gap-2">
-                Send Direct Message <i data-lucide="mail" class="w-4 h-4"></i>
-            </a>
-        </div>
-    </div>
-
-    <!-- BOTTOM NAVIGATION (Fixed) -->
-    <div id="global-nav" class="fixed bottom-0 left-0 w-full h-20 bg-black/80 backdrop-blur-xl border-t border-white/10 z-[100] flex justify-around items-center px-4 hidden">
-        <button onclick="navigateTo('portal')" class="flex flex-col items-center gap-1 text-[--mt-gold]">
-            <i data-lucide="layout" class="w-5 h-5"></i>
-            <span class="text-[8px] font-black uppercase">Portal</span>
-        </button>
-        <button onclick="navigateTo('services')" class="flex flex-col items-center gap-1 text-white/40">
-            <i data-lucide="zap" class="w-5 h-5"></i>
-            <span class="text-[8px] font-black uppercase">Services</span>
-        </button>
-        <button onclick="toggleChat()" class="flex flex-col items-center gap-1 text-white/40">
-            <i data-lucide="message-square" class="w-5 h-5"></i>
-            <span class="text-[8px] font-black uppercase">Chat</span>
-        </button>
-        <button onclick="navigateTo('architect')" class="flex flex-col items-center gap-1 text-white/40">
-            <i data-lucide="shield" class="w-5 h-5"></i>
-            <span class="text-[8px] font-black uppercase">Architect</span>
-        </button>
-    </div>
-
-    <!-- CHATBOT INTERFACE -->
-    <div id="chatbot-container" class="glass-card border-[--mt-gold]/30 flex">
-        <div class="p-4 border-b border-white/10 flex justify-between items-center bg-black/40">
-            <span class="text-[10px] font-black uppercase tracking-widest text-[--mt-gold]">AI Assistant</span>
-            <button onclick="toggleChat()"><i data-lucide="x" class="w-4 h-4"></i></button>
-        </div>
-        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col">
-            <div class="chat-bubble chat-bot">Welcome Commander. How can I assist you with your digital empire today?</div>
-        </div>
-        <div class="p-3 border-t border-white/10 flex gap-2">
-            <input id="chat-input" type="text" placeholder="Query mission status..." class="flex-1 bg-white/5 rounded-lg border border-white/10 px-3 text-xs outline-none">
-            <button onclick="sendMessage()" class="p-2 bg-[--mt-gold] text-black rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
-        </div>
-    </div>
-
-    <!-- SCRIPTS -->
-    <script>
-        // Initialize Icons
-        lucide.createIcons();
-
-        let currentTier = { name: 'Starter', price: 500 };
-
-        // 1. THREE.JS ENGINE
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        // Earth Wireframe
-        const earthGeo = new THREE.SphereGeometry(15, 64, 64);
-        const earthMat = new THREE.MeshPhongMaterial({
-            color: 0x111111,
-            emissive: 0x00f0ff,
-            emissiveIntensity: 0.1,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.4
-        });
-        const earth = new THREE.Mesh(earthGeo, earthMat);
-        scene.add(earth);
-
-        // Starfield
-        const starGeo = new THREE.BufferGeometry();
-        const starCount = 5000;
-        const posArray = new Float32Array(starCount * 3);
-        for(let i=0; i < starCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 800;
-        }
-        starGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const starMat = new THREE.PointsMaterial({ size: 0.5, color: 0xffffff });
-        const stars = new THREE.Points(starGeo, starMat);
-        scene.add(stars);
-
-        const light = new THREE.PointLight(0xffffff, 1, 100);
-        light.position.set(20, 20, 20);
-        scene.add(light);
-        scene.add(new THREE.AmbientLight(0x404040));
-
-        camera.position.z = 60;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            earth.rotation.y += 0.001;
-            stars.rotation.y += 0.0002;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // 2. GSAP SCROLL ANIMATIONS (Intro Screen Only)
-        gsap.to("#intro-logo", { opacity: 1, y: 0, duration: 1, delay: 0.5 });
-        gsap.to("#intro-title", { opacity: 1, y: 0, duration: 1, delay: 0.8 });
-        gsap.to("#intro-subtitle", { opacity: 1, y: 0, duration: 1, delay: 1.1 });
-        gsap.to("#intro-cta", { opacity: 1, y: 0, duration: 1, delay: 1.4 });
-
-        // Camera zoom on scroll logic
-        window.addEventListener('scroll', () => {
-            const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-            if(document.getElementById('screen-intro').classList.contains('active')) {
-                camera.position.z = 60 - (scrollPercent * 40);
-                earth.scale.set(1 + scrollPercent*0.5, 1 + scrollPercent*0.5, 1 + scrollPercent*0.5);
                 
-                // Transition effect at 90% scroll
-                if(scrollPercent > 0.95) {
-                    navigateTo('services');
-                }
-            }
-        });
+                <!-- Error Message Banner -->
+                <div id="portal-error" class="text-red-400 text-xs font-bold mb-4 hidden bg-red-400/10 p-3 rounded-lg border border-red-400/20 text-center"></div>
+                
+                <!-- STEP 1: Project Scope -->
+                <div id="portal-step-1" class="portal-section">
+                    <div class="space-y-4 mb-6">
+                        <input type="text" id="biz-name" placeholder="Business Name" class="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-[16px] text-white placeholder-white/30 focus:outline-none focus:border-cyan-400/50 transition-colors">
+                        <textarea id="biz-reqs" rows="3" placeholder="Website Requirements & Goals" class="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-[16px] text-white placeholder-white/30 focus:outline-none focus:border-cyan-400/50 transition-colors"></textarea>
+                    </div>
 
-        // 3. NAVIGATION LOGIC
-        function navigateTo(screenId) {
-            // Hide all screens
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById('screen-' + screenId);
-            target.classList.add('active');
-            window.scrollTo(0, 0);
+                    <h3 class="text-white font-bold text-xs uppercase tracking-widest mb-3">Select Architecture</h3>
+                    <div class="space-y-3 mb-8">
+                        <div class="service-card cyber-glass p-4 border-white/10 cursor-pointer transition-all active:scale-[0.98]" data-tier="Starter" data-price="500">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="text-white font-bold text-sm">Starter Tier</h4>
+                                    <p class="text-[10px] text-white/50">5 Pages, Mobile Responsive</p>
+                                </div>
+                                <div class="text-cyan-400 font-black heading-font">$500</div>
+                            </div>
+                        </div>
+                        <div class="service-card cyber-glass p-4 border-white/10 cursor-pointer transition-all active:scale-[0.98]" data-tier="Growth" data-price="700">
+                            <div class="flex justify-between items-center">
+                                <div class="absolute top-0 right-0 bg-gold/20 text-gold text-[7px] font-bold px-2 py-1 rounded-bl-lg tracking-widest">POPULAR</div>
+                                <div>
+                                    <h4 class="text-white font-bold text-sm">Growth Tier</h4>
+                                    <p class="text-[10px] text-white/50">E-com + Meta Pixel</p>
+                                </div>
+                                <div class="text-gold font-black heading-font">$700</div>
+                            </div>
+                        </div>
+                        <div class="service-card cyber-glass p-4 border-white/10 cursor-pointer transition-all active:scale-[0.98]" data-tier="Dominion" data-price="1000">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h4 class="text-white font-bold text-sm">Dominion Tier</h4>
+                                    <p class="text-[10px] text-white/50">Full Enterprise Setup</p>
+                                </div>
+                                <div class="text-cyan-400 font-black heading-font">$1000</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="nextPortalStep(2)" class="btn-mighty cyan w-full flex justify-center gap-2">Continue <i data-lucide="arrow-right" class="w-4 h-4 mt-0.5"></i></button>
+                </div>
 
-            // Global Nav Visibility
-            const navScreens = ['portal', 'services', 'architect', 'thankyou'];
-            if(navScreens.includes(screenId)) {
-                document.getElementById('global-nav').classList.remove('hidden');
-            } else {
-                document.getElementById('global-nav').classList.add('hidden');
-            }
+                <!-- STEP 2: Client Info -->
+                <div id="portal-step-2" class="portal-section hidden">
+                    <div class="space-y-4 mb-8">
+                        <input type="email" id="client-email" placeholder="Email Address" class="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-[16px] text-white placeholder-white/30 focus:outline-none focus:border-cyan-400/50 transition-colors">
+                        <input type="tel" id="client-phone" placeholder="Phone Number" class="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-[16px] text-white placeholder-white/30 focus:outline-none focus:border-cyan-400/50 transition-colors">
+                        <textarea id="client-address" rows="3" placeholder="Billing Address" class="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-[16px] text-white placeholder-white/30 focus:outline-none focus:border-cyan-400/50 transition-colors"></textarea>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="nextPortalStep(1)" class="bg-white/5 text-white/70 p-4 rounded-xl border border-white/10 active:bg-white/10 transition-colors"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                        <button onclick="nextPortalStep(3)" class="btn-mighty cyan flex-1 flex justify-center gap-2">Secure Checkout <i data-lucide="lock" class="w-4 h-4 mt-0.5"></i></button>
+                    </div>
+                </div>
 
-            // Close chat on screen change
-            document.getElementById('chatbot-container').style.display = 'none';
-        }
+                <!-- STEP 3: Checkout -->
+                <div id="portal-step-3" class="portal-section hidden">
+                    <div class="cyber-glass border-gold/30 p-5 mb-6" style="background: rgba(212, 175, 55, 0.05);">
+                        <h4 class="text-gold font-bold text-[10px] uppercase tracking-widest mb-4">Order Summary</h4>
+                        <div class="flex justify-between items-center mb-2 text-sm text-white">
+                            <span id="summary-tier">Selected Tier</span>
+                            <span id="summary-price" class="font-bold heading-font">$0</span>
+                        </div>
+                        <div class="border-t border-white/10 my-3"></div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-white/60">Total Due Today</span>
+                            <span id="summary-total" class="text-gold font-black heading-font text-xl">$0</span>
+                        </div>
+                    </div>
 
-        // 4. ACTION LOGIC
-        function selectTier(name, price) {
-            currentTier = { name, price };
-            document.getElementById('display-tier-name').innerText = name;
-            document.getElementById('display-tier-price').innerText = '$' + price + '.00';
-            navigateTo('payment');
-        }
+                    <div class="space-y-4 mb-8">
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
+                            <i data-lucide="credit-card" class="text-white/40 w-5 h-5"></i>
+                            <input type="text" placeholder="Card Number" class="bg-transparent border-none outline-none text-[16px] text-white w-full font-mono" value="4242 4242 4242 4242">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
+                                <input type="text" placeholder="MM/YY" class="bg-transparent border-none outline-none text-[16px] text-white w-full font-mono" value="12/28">
+                            </div>
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-3">
+                                <input type="password" placeholder="CVC" class="bg-transparent border-none outline-none text-[16px] text-white w-full font-mono" value="123">
+                            </div>
+                        </div>
+                    </div>
 
-        function processPayment() {
-            // Simulated payment delay
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> SECURING ASSETS...`;
-            lucide.createIcons();
+                    <div class="flex gap-3">
+                        <button onclick="nextPortalStep(2)" class="bg-white/5 text-white/70 p-4 rounded-xl border border-white/10 active:bg-white/10 transition-colors"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                        <button id="pay-btn" onclick="processPortalPayment()" class="btn-mighty flex-1 flex justify-center gap-2 border-none" style="background: var(--gold); color: black;">Authorize <span id="btn-amt">$0</span></button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: Invoice -->
+                <div id="portal-step-4" class="portal-section hidden">
+                    <div class="flex flex-col items-center justify-center text-center mb-8 mt-4">
+                        <div class="w-16 h-16 rounded-full bg-cyan-400/20 border-2 border-cyan-400 flex items-center justify-center mb-4 text-cyan-400 shadow-[0_0_20px_rgba(0,240,255,0.3)]">
+                            <i data-lucide="check" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-white font-black text-xl heading-font">PAYMENT SECURED</h3>
+                        <p class="text-[10px] text-white/50 uppercase tracking-widest mt-2">Assets are being deployed</p>
+                    </div>
+
+                    <!-- Receipt -->
+                    <div id="invoice-doc" class="cyber-glass border-white/20 p-6 mb-8 bg-black/80 relative">
+                        <!-- Invoice Styling -->
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-white/10 to-transparent pointer-events-none"></div>
+                        
+                        <div class="flex justify-between items-start border-b border-white/10 pb-4 mb-4">
+                            <div>
+                                <h4 class="text-gold font-bold text-[10px] uppercase tracking-widest mb-1">Mighty Teck LLC</h4>
+                                <p class="text-[9px] text-white/40 uppercase">Official Invoice</p>
+                            </div>
+                            <div class="text-right">
+                                <p id="inv-date" class="text-[9px] text-white/60 mb-1">Date: --</p>
+                                <p id="inv-id" class="text-[9px] text-cyan-400 font-mono">ID: MT-XXXX</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <p class="text-[8px] text-white/40 uppercase tracking-wider mb-1">Billed To</p>
+                                <p id="inv-biz" class="text-sm font-bold text-white">Client Business</p>
+                                <p id="inv-email" class="text-[10px] text-white/60">client@email.com</p>
+                            </div>
+                            
+                            <div class="bg-white/5 rounded-lg p-3">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="text-[10px] text-white/60">Service Acquired</p>
+                                        <p id="inv-service" class="text-xs font-bold text-white mt-0.5">Tier Selection</p>
+                                    </div>
+                                    <p id="inv-amt" class="text-cyan-400 font-black heading-font text-lg">$0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center text-[10px] font-bold">
+                            <span class="text-white/40 uppercase">Status</span>
+                            <span class="text-gold uppercase tracking-widest flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 mt-0.5"></i> Paid in Full</span>
+                        </div>
+                    </div>
+
+                    <button onclick="downloadPortalInvoice(event)" class="btn-mighty cyan w-full flex justify-center gap-2 mb-4">Download PDF <i data-lucide="download" class="w-4 h-4 mt-0.5"></i></button>
+                    <button onclick="resetPortal()" class="text-[10px] text-white/50 hover:text-white transition-colors uppercase tracking-widest text-center w-full pb-8">Start New Project / Return</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- AI Chat FAB -->
+    <button id="chat-fab" class="absolute bottom-[calc(90px+var(--safe-area-bottom))] right-4 w-14 h-14 bg-cyan-400 rounded-full flex items-center justify-center text-black z-40 shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-transform active:scale-95">
+        <i data-lucide="bot" class="w-7 h-7"></i>
+    </button>
+
+    <!-- AI Chat Overlay -->
+    <div id="chat-overlay" class="absolute inset-0 bg-[#010103] z-[60] flex flex-col transform translate-y-full transition-transform duration-300">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b border-white/10 pt-[calc(1rem+var(--safe-area-top))] bg-black/50 backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-cyan-400/20 flex items-center justify-center">
+                    <i data-lucide="bot" class="text-cyan-400 w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white tracking-widest text-sm heading-font">MIGHTY AI</h3>
+                    <p class="text-[9px] text-cyan-400 uppercase tracking-widest">Online</p>
+                </div>
+            </div>
+            <button id="close-chat" class="text-white/50 hover:text-white p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        
+        <!-- Chat History -->
+        <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- Bot Message -->
+            <div class="bg-white/10 p-3 rounded-xl rounded-tl-none w-[85%] text-sm text-white/90 leading-relaxed shadow-lg border border-white/5">
+                Greetings! I am Mighty AI. How can I assist you with our services, architectures, or pricing today?
+            </div>
+        </div>
+        
+        <!-- Input Area -->
+        <div class="p-4 border-t border-white/10 bg-black/50 backdrop-blur-md pb-[calc(1rem+var(--safe-area-bottom))]">
+            <div class="flex items-center gap-3 bg-white/5 rounded-full px-4 py-2 border border-white/10 focus-within:border-cyan-400/50 transition-colors">
+                <input type="text" id="chat-input" class="bg-transparent flex-1 outline-none text-sm text-white placeholder-white/30 py-1" placeholder="Ask about services...">
+                <button id="send-chat" class="text-cyan-400 p-1"><i data-lucide="send" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Passcode Overlay -->
+    <div id="admin-auth-overlay" class="absolute inset-0 bg-[#010103]/95 backdrop-blur-lg z-[70] flex flex-col items-center justify-center transform translate-y-full transition-transform duration-300">
+        <div class="cyber-glass border-gold/40 p-8 w-4/5 max-w-sm text-center shadow-[0_0_40px_rgba(212,175,55,0.15)] bg-[#010103]">
+            <i data-lucide="lock" class="w-10 h-10 text-gold mx-auto mb-4"></i>
+            <h3 class="heading-font text-white font-black mb-2 tracking-widest text-lg">OWNER ACCESS</h3>
+            <p class="text-[9px] text-white/50 uppercase tracking-[0.2em] mb-6">Enter Authorization Code</p>
             
-            setTimeout(() => {
-                document.getElementById('inv-tier').innerText = currentTier.name;
-                document.getElementById('inv-price').innerText = '$' + currentTier.price + '.00';
-                document.getElementById('invoice-date').innerText = new Date().toLocaleDateString();
-                navigateTo('thankyou');
-            }, 2000);
+            <input type="password" id="admin-passcode" pattern="[0-9]*" inputmode="numeric" class="w-full bg-black/80 border border-white/10 rounded-xl p-4 text-center text-2xl text-white tracking-[0.5em] focus:outline-none focus:border-gold/50 transition-colors mb-2 font-mono" placeholder="••••">
+            
+            <div id="admin-auth-error" class="text-red-400 text-[9px] font-bold uppercase tracking-widest mb-4 opacity-0 transition-opacity h-3">Access Denied</div>
+            
+            <div class="flex gap-3 mt-2">
+                <button onclick="closeAdminAuth()" class="bg-white/5 text-white/70 p-3 rounded-xl border border-white/10 active:bg-white/10 transition-colors flex-1 text-[10px] font-bold uppercase tracking-widest">Cancel</button>
+                <button onclick="verifyAdminAuth()" class="bg-gold text-black p-3 rounded-xl font-black uppercase flex-[2] text-[10px] tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.4)] active:scale-95 transition-transform">Verify</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" data-target="home">
+            <div class="icon-wrapper"><i data-lucide="compass" class="w-6 h-6"></i></div>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" data-target="portal">
+            <div class="icon-wrapper"><i data-lucide="lock" class="w-6 h-6"></i></div>
+            <span>Portal</span>
+        </div>
+        <div class="nav-item" data-target="clients">
+            <div class="icon-wrapper"><i data-lucide="users" class="w-6 h-6"></i></div>
+            <span>Roster</span>
+        </div>
+        <div class="nav-item" data-target="services">
+            <div class="icon-wrapper"><i data-lucide="grid" class="w-6 h-6"></i></div>
+            <span>Services</span>
+        </div>
+        <div class="nav-item" data-target="pricing">
+            <div class="icon-wrapper"><i data-lucide="credit-card" class="w-6 h-6"></i></div>
+            <span>Pricing</span>
+        </div>
+        <div class="nav-item" data-target="contact">
+            <div class="icon-wrapper"><i data-lucide="user" class="w-6 h-6"></i></div>
+            <span>Contact</span>
+        </div>
+    </nav>
+</div>
+
+<script>
+    // Initialize Icons
+    lucide.createIcons();
+
+    // App Navigation Logic (With History Stack)
+    const navItems = document.querySelectorAll('.nav-item');
+    const screens = document.querySelectorAll('.screen');
+    const scrollContainer = document.getElementById('scroll-container');
+    const backBtn = document.getElementById('back-btn');
+
+    let navHistory = ['home'];
+
+    function updateBackButton() {
+        if (navHistory.length > 1) {
+            backBtn.classList.remove('opacity-0', 'pointer-events-none');
+            backBtn.classList.add('opacity-100', 'pointer-events-auto');
+        } else {
+            backBtn.classList.add('opacity-0', 'pointer-events-none');
+            backBtn.classList.remove('opacity-100', 'pointer-events-auto');
         }
+    }
 
-        function downloadInvoice() {
-            const btn = event.target;
-            btn.innerHTML = `Generating Secure PDF...`;
-            setTimeout(() => {
-                window.print(); // Native fallback for downloadable PDF
-                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Invoice Saved`;
-                lucide.createIcons();
-            }, 1000);
+    function navigateTo(target, isBackAction = false) {
+        const currentScreen = document.querySelector('.screen.active');
+        const nextScreen = document.getElementById(`screen-${target}`);
+
+        if(!nextScreen || currentScreen === nextScreen) return;
+
+        // Manage History Stack
+        if (!isBackAction) {
+            navHistory.push(target);
         }
+        updateBackButton();
 
-        // 5. CHATBOT LOGIC
-        function toggleChat() {
-            const chat = document.getElementById('chatbot-container');
-            chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const box = document.getElementById('chat-messages');
-            if(!input.value.trim()) return;
-
-            // User Message
-            const userMsg = document.createElement('div');
-            userMsg.className = 'chat-bubble chat-user';
-            userMsg.innerText = input.value;
-            box.appendChild(userMsg);
-
-            const query = input.value.toLowerCase();
-            input.value = '';
-            box.scrollTop = box.scrollHeight;
-
-            // Bot Response
-            setTimeout(() => {
-                const botMsg = document.createElement('div');
-                botMsg.className = 'chat-bubble chat-bot';
-                
-                let reply = "The Architect is currently deploying code. Please contact sanjaykathulamusic@gmail.com for urgent missions.";
-                
-                if(query.includes('price') || query.includes('cost')) {
-                    reply = "Our tiers start at $500 (Starter), $700 (Growth), and $1000 (Dominion). Which one fits your mission objectives?";
-                } else if(query.includes('drone') || query.includes('photo') || query.includes('video')) {
-                    reply = "We offer premium Drone Photography and Cinematic Video Editing as add-ons. You can select them in your Portal!";
-                } else if(query.includes('status') || query.includes('update')) {
-                    reply = "Infrastructure stabilization is currently at 45%. Check the Portal for real-time analytics.";
-                }
-                
-                botMsg.innerText = reply;
-                box.appendChild(botMsg);
-                box.scrollTop = box.scrollHeight;
-            }, 1000);
-        }
-
-        // Handling Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // Update Bottom Nav UI
+        navItems.forEach(nav => {
+            nav.classList.remove('active', 'text-cyan-400');
+            if(nav.getAttribute('data-target') === target) {
+                nav.classList.add('active', 'text-cyan-400');
+            }
         });
 
-    </script>
+        // Smart Slide Animation (Reverse direction on back)
+        const exitY = isBackAction ? 20 : -20;
+        const enterY = isBackAction ? -20 : 20;
+
+        gsap.to(currentScreen, {
+            opacity: 0, 
+            y: exitY, 
+            duration: 0.2, 
+            onComplete: () => {
+                currentScreen.classList.remove('active');
+                nextScreen.classList.add('active');
+                scrollContainer.scrollTop = 0; // Reset scroll position
+                
+                gsap.fromTo(nextScreen, 
+                    { opacity: 0, y: enterY }, 
+                    { opacity: 1, y: 0, duration: 0.3, ease: "out" }
+                );
+            }
+        });
+    }
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            navigateTo(item.getAttribute('data-target'));
+        });
+    });
+
+    // Back Button Logic
+    backBtn.addEventListener('click', () => {
+        if (navHistory.length > 1) {
+            navHistory.pop(); // Remove current screen
+            const prevTarget = navHistory[navHistory.length - 1]; // Look up previous screen
+            navigateTo(prevTarget, true);
+        }
+    });
+
+    // --- PORTAL ONBOARDING & CHECKOUT LOGIC ---
+    let portalData = { bizName: '', reqs: '', tier: '', price: 0, email: '', phone: '', address: '' };
+
+    function showPortalError(msg) {
+        const errDiv = document.getElementById('portal-error');
+        errDiv.innerText = msg;
+        errDiv.classList.remove('hidden');
+        gsap.fromTo(errDiv, { x: -10 }, { x: 0, duration: 0.1, yoyo: true, repeat: 3 });
+        setTimeout(() => errDiv.classList.add('hidden'), 3500);
+    }
+
+    // Service Selection
+    const serviceCards = document.querySelectorAll('.service-card');
+    serviceCards.forEach(card => {
+        card.addEventListener('click', () => {
+            serviceCards.forEach(c => {
+                c.classList.remove('border-cyan-400', 'bg-cyan-400/10', 'border-gold', 'bg-gold/10');
+                c.classList.add('border-white/10');
+            });
+
+            const tier = card.getAttribute('data-tier');
+            card.classList.remove('border-white/10');
+            
+            // Explicitly defining the class strings so Tailwind JIT compiler can detect them
+            if (tier === 'Growth') {
+                card.classList.add('border-gold', 'bg-gold/10');
+            } else {
+                card.classList.add('border-cyan-400', 'bg-cyan-400/10');
+            }
+
+            portalData.tier = tier;
+            portalData.price = card.getAttribute('data-price');
+        });
+    });
+
+    function nextPortalStep(step) {
+        // Validation Checks
+        if (step === 2) {
+            portalData.bizName = document.getElementById('biz-name').value.trim();
+            if(!portalData.bizName) return showPortalError("Please enter your Business Name.");
+            if(!portalData.tier) return showPortalError("Please select a Service Architecture.");
+        }
+        
+        if (step === 3) {
+            portalData.email = document.getElementById('client-email').value.trim();
+            if(!portalData.email || !portalData.email.includes('@')) return showPortalError("Please enter a valid Email Address.");
+            
+            // Populate Summary Data
+            document.getElementById('summary-tier').innerText = portalData.tier + ' Tier';
+            document.getElementById('summary-price').innerText = '$' + portalData.price;
+            document.getElementById('summary-total').innerText = '$' + portalData.price;
+            document.getElementById('btn-amt').innerText = '$' + portalData.price;
+        }
+
+        // Handle Transition
+        document.querySelectorAll('.portal-section').forEach(sec => sec.classList.add('hidden'));
+        const targetSec = document.getElementById(`portal-step-${step}`);
+        targetSec.classList.remove('hidden');
+        
+        // Update Headers
+        const titles = ["ONBOARDING", "CONTACT DETAILS", "SECURE CHECKOUT", "CONFIRMATION"];
+        const subtitles = ["Phase 1", "Phase 2", "Phase 3", "Final Phase"];
+        
+        document.getElementById('portal-title').innerText = titles[step-1];
+        document.getElementById('portal-subtitle').innerText = subtitles[step-1];
+        
+        const indicator = document.getElementById('portal-indicator');
+        if (step <= 3) {
+            indicator.innerText = `${step} / 3`;
+            indicator.style.display = 'block';
+        } else {
+            indicator.style.display = 'none';
+        }
+
+        gsap.fromTo(targetSec, { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.3 });
+    }
+
+    // --- DYNAMIC ROSTER & ADMIN LOGIC ---
+    let rosterData = [
+        { id: 1, name: 'Apex Global Partners', tier: 'Dominion', progress: 85, status: 'Finalizing 3D Assets & SEO', payment: 'Paid' },
+        { id: 2, name: 'Quantum Logistics', tier: 'Growth', progress: 40, status: 'Wireframing & Copywriting', payment: 'Pending' },
+        { id: 3, name: 'Aura Aesthetics', tier: 'Starter', progress: 100, status: 'Deployment Completed', payment: 'Paid' }
+    ];
+
+    function renderRoster() {
+        const container = document.getElementById('roster-container');
+        container.innerHTML = ''; // Clear current
+        
+        rosterData.forEach((client, index) => {
+            let colorClass = client.tier === 'Growth' ? 'gold' : (client.tier === 'Dominion' ? 'cyan-400' : 'white');
+            let colorHex = client.tier === 'Growth' ? '212,175,55' : (client.tier === 'Dominion' ? '0,240,255' : '255,255,255');
+            let bgStyle = client.tier === 'Growth' ? 'background: rgba(212, 175, 55, 0.05);' : (client.progress === 100 ? 'background: rgba(255,255,255,0.05); opacity: 0.7;' : '');
+            let shadow = `rgba(${colorHex},0.6)`;
+            
+            // Icon logic based on progress and payment
+            let statusIcon = client.progress === 100 ? `<i data-lucide="check-circle" class="w-3 h-3 text-${colorClass}"></i>` : `<i data-lucide="${client.progress > 0 ? 'loader' : 'activity'}" class="w-3 h-3 text-${colorClass} ${client.progress > 0 && client.progress < 100 ? 'animate-spin' : ''}"></i>`;
+            
+            let paymentBadge = client.payment === 'Paid' 
+                ? `<p class="text-[9px] text-green-400 font-bold uppercase tracking-widest flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Paid</p>`
+                : `<p class="text-[9px] text-red-400 font-bold uppercase tracking-widest flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Pending</p>`;
+
+            const cardHTML = `
+                <div class="cyber-glass border-${colorClass}/40 p-5 roster-card" style="${bgStyle}">
+                    <div class="flex justify-between items-end mb-3">
+                        <div>
+                            <h4 class="text-white font-bold text-sm mb-0.5">${client.name}</h4>
+                            <p class="text-[9px] text-${colorClass} uppercase tracking-wider">${client.tier} Tier</p>
+                        </div>
+                        <span class="text-white font-black text-xl heading-font leading-none">${client.progress}%</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mb-3 relative">
+                        <div class="h-full bg-${colorClass} shadow-[0_0_15px_${shadow}] transition-all duration-1000 ease-out" style="width: ${client.progress}%"></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-[10px] text-white/60 italic flex items-center gap-2">
+                            ${statusIcon}
+                            ${client.status}
+                        </p>
+                        ${paymentBadge}
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', cardHTML);
+        });
+        lucide.createIcons();
+    }
+
+    function renderAdminControls() {
+        const container = document.getElementById('admin-container');
+        container.innerHTML = '';
+        
+        rosterData.forEach(client => {
+            const adminHTML = `
+                <div class="cyber-glass border-white/10 p-4 bg-black/40">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-white font-bold text-sm">${client.name}</h4>
+                        <span class="text-[8px] bg-white/10 text-white/80 px-2 py-1 rounded uppercase tracking-widest">${client.tier}</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[8px] text-cyan-400 uppercase tracking-widest font-bold mb-1 block">Progress (%)</label>
+                            <input type="number" min="0" max="100" onchange="updateRosterItem(${client.id}, 'progress', this.value)" value="${client.progress}" class="w-full bg-[#010103] border border-white/10 rounded-lg p-2 text-white text-xs outline-none focus:border-cyan-400/50">
+                        </div>
+                        <div>
+                            <label class="text-[8px] text-cyan-400 uppercase tracking-widest font-bold mb-1 block">Work Status</label>
+                            <input type="text" onchange="updateRosterItem(${client.id}, 'status', this.value)" value="${client.status}" class="w-full bg-[#010103] border border-white/10 rounded-lg p-2 text-white text-xs outline-none focus:border-cyan-400/50">
+                        </div>
+                        <div>
+                            <label class="text-[8px] text-cyan-400 uppercase tracking-widest font-bold mb-1 block">Payment Status</label>
+                            <select onchange="updateRosterItem(${client.id}, 'payment', this.value)" class="w-full bg-[#010103] border border-white/10 rounded-lg p-2 text-white text-xs outline-none focus:border-cyan-400/50 appearance-none">
+                                <option value="Paid" ${client.payment === 'Paid' ? 'selected' : ''}>Paid</option>
+                                <option value="Pending" ${client.payment === 'Pending' ? 'selected' : ''}>Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', adminHTML);
+        });
+    }
+
+    // Helper to securely update the array data
+    window.updateRosterItem = function(id, field, value) {
+        const client = rosterData.find(c => c.id === id);
+        if(client) {
+            if(field === 'progress') value = Math.min(100, Math.max(0, parseInt(value) || 0));
+            client[field] = value;
+        }
+    };
+
+    function syncAndReturnToRoster() {
+        renderRoster(); // Rebuild the public roster UI with the new data
+        navigateTo('clients', true); // Navigate back
+        
+        // Add a cool refresh animation to the updated cards
+        gsap.fromTo('.roster-card', 
+            { opacity: 0, scale: 0.95 }, 
+            { opacity: 1, scale: 1, duration: 0.4, stagger: 0.1, ease: "back.out(1.2)" }
+        );
+    }
+
+    // Function to dynamically add the new client from onboarding
+    function addClientToRoster(data) {
+        // Push the newly acquired client to the top of our tracking array
+        rosterData.unshift({
+            id: Date.now(),
+            name: data.bizName,
+            tier: data.tier,
+            progress: 0,
+            status: 'Initializing Architecture',
+            payment: 'Paid' // Automatically set to paid since they just passed checkout
+        });
+        
+        // Refresh both views
+        renderRoster();
+        renderAdminControls();
+    }
+
+    // Initialize the dynamic UIs on load
+    renderRoster();
+    renderAdminControls();
+
+    // --- ADMIN AUTHENTICATION LOGIC ---
+    const adminAuthOverlay = document.getElementById('admin-auth-overlay');
+    const adminPasscode = document.getElementById('admin-passcode');
+    const adminAuthError = document.getElementById('admin-auth-error');
+
+    function openAdminAuth() {
+        adminAuthOverlay.classList.remove('translate-y-full');
+        adminPasscode.value = ''; // Clear previous input
+        adminAuthError.classList.add('opacity-0');
+        // Small delay to allow the sliding animation to finish before focusing input
+        setTimeout(() => adminPasscode.focus(), 350); 
+    }
+
+    function closeAdminAuth() {
+        adminAuthOverlay.classList.add('translate-y-full');
+        adminPasscode.blur(); // Hide mobile keyboard
+    }
+
+    function verifyAdminAuth() {
+        if (adminPasscode.value === '1805') {
+            closeAdminAuth();
+            setTimeout(() => navigateTo('admin'), 300); // Slide into Admin view smoothly
+        } else {
+            // Show Error
+            adminAuthError.classList.remove('opacity-0');
+            // Shake Animation
+            gsap.fromTo(adminPasscode, { x: -10 }, { x: 0, duration: 0.1, yoyo: true, repeat: 3 });
+            // Reset input after error
+            setTimeout(() => {
+                adminAuthError.classList.add('opacity-0');
+                adminPasscode.value = '';
+                adminPasscode.focus();
+            }, 1500);
+        }
+    }
+
+    // Trigger verification on "Enter" key
+    adminPasscode.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') verifyAdminAuth();
+    });
+
+    function processPortalPayment() {
+        const btn = document.getElementById('pay-btn');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Processing...`;
+        lucide.createIcons();
+        btn.disabled = true;
+
+        setTimeout(() => {
+            // Populate Invoice Data
+            document.getElementById('inv-date').innerText = `Date: ${new Date().toLocaleDateString()}`;
+            document.getElementById('inv-id').innerText = `ID: MT-${Math.floor(1000 + Math.random() * 9000)}`;
+            document.getElementById('inv-biz').innerText = portalData.bizName;
+            document.getElementById('inv-email').innerText = portalData.email;
+            document.getElementById('inv-service').innerText = portalData.tier + ' Package';
+            document.getElementById('inv-amt').innerText = '$' + portalData.price;
+
+            // Instantly sync data to the Roster
+            addClientToRoster(portalData);
+
+            nextPortalStep(4);
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }, 2000); // Simulate network delay
+    }
+
+    function downloadPortalInvoice(e) {
+        const btn = e.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `Encrypting PDF...`;
+        setTimeout(() => {
+            window.print(); // Triggers native mobile PDF generation/printing
+            btn.innerHTML = `<i data-lucide="check" class="w-4 h-4 mt-0.5"></i> Saved securely`;
+            lucide.createIcons();
+            setTimeout(() => { btn.innerHTML = originalText; }, 3000);
+        }, 1000);
+    }
+
+    // Function to completely reset the portal back to Step 1 after completion
+    function resetPortal() {
+        // Clear all inputs
+        document.getElementById('biz-name').value = '';
+        document.getElementById('biz-reqs').value = '';
+        document.getElementById('client-email').value = '';
+        document.getElementById('client-phone').value = '';
+        document.getElementById('client-address').value = '';
+
+        // Reset data object
+        portalData = { bizName: '', reqs: '', tier: '', price: 0, email: '', phone: '', address: '' };
+
+        // Reset service cards UI
+        const serviceCards = document.querySelectorAll('.service-card');
+        serviceCards.forEach(c => {
+            c.classList.remove('border-cyan-400', 'bg-cyan-400/10', 'border-gold', 'bg-gold/10');
+            c.classList.add('border-white/10');
+        });
+
+        // Jump back to step 1
+        nextPortalStep(1);
+        
+        // Scroll to the top of the portal
+        document.getElementById('scroll-container').scrollTop = 0;
+    }
+
+    // --- QUICK INQUIRY LOGIC ---
+    function inquireService(serviceName) {
+        const email = "sanjaykathulamusic@gmail.com";
+        const subject = encodeURIComponent(`Service Inquiry: ${serviceName}`);
+        const body = encodeURIComponent(
+`Hello Sanjay,
+
+I am interested in exploring your ${serviceName} service for my business. 
+
+Could you please provide more details, pricing structures, and let me know the next steps to proceed?
+
+Thank you,
+[Your Name/Business]`
+        );
+        
+        // Open the user's default email client
+        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    }
+
+    // --- AI CHATBOT LOGIC ---
+    const chatFab = document.getElementById('chat-fab');
+    const chatOverlay = document.getElementById('chat-overlay');
+    const closeChat = document.getElementById('close-chat');
+    const chatInput = document.getElementById('chat-input');
+    const sendChat = document.getElementById('send-chat');
+    const chatHistory = document.getElementById('chat-history');
+
+    chatFab.addEventListener('click', () => {
+        chatOverlay.classList.remove('translate-y-full');
+    });
+
+    closeChat.addEventListener('click', () => {
+        chatOverlay.classList.add('translate-y-full');
+    });
+
+    function sendChatMessage() {
+        const text = chatInput.value.trim();
+        if(!text) return;
+
+        // User Message
+        const userMsg = document.createElement('div');
+        userMsg.className = 'bg-cyan-400 text-black p-3 rounded-xl rounded-tr-none w-[85%] text-sm self-end ml-auto shadow-lg shadow-cyan-400/20';
+        userMsg.innerText = text;
+        chatHistory.appendChild(userMsg);
+        chatInput.value = '';
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        // Mock AI Response
+        setTimeout(() => {
+            const botMsg = document.createElement('div');
+            botMsg.className = 'bg-white/10 p-3 rounded-xl rounded-tl-none w-[85%] text-sm text-white/90 leading-relaxed shadow-lg border border-white/5';
+            
+            let reply = "I am processing your request. For immediate assistance, please connect with our Director, Sanjay, via the Contact portal.";
+            const lowerText = text.toLowerCase();
+            
+            if(lowerText.includes('price') || lowerText.includes('cost') || lowerText.includes('pay')) {
+                reply = "Our digital infrastructures range from a $500 Starter tier to a $1000 Dominion enterprise setup. Check the Pricing tab for details.";
+            } else if(lowerText.includes('service') || lowerText.includes('do you do') || lowerText.includes('what')) {
+                reply = "We engineer immersive 3D web environments, provide cinematic drone videography, and develop advanced quadcopter flight systems. We are a complete digital ecosystem.";
+            } else if(lowerText.includes('hello') || lowerText.includes('hi')) {
+                reply = "Hello there! Ready to achieve Galactic Digital Supremacy? Ask me anything about our Arsenal.";
+            } else if(lowerText.includes('portal') || lowerText.includes('client')) {
+                reply = "The Client Portal is your secure zone to access deliverables, active projects, and secure invoices. Use your Client ID to log in.";
+            }
+
+            botMsg.innerText = reply;
+            chatHistory.appendChild(botMsg);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }, 600 + Math.random() * 400); // Slight random delay for realism
+    }
+
+    sendChat.addEventListener('click', sendChatMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') sendChatMessage();
+    });
+
+    // --- THREE.JS ENGINE (Mobile Optimized) ---
+    const canvas = document.getElementById('global-canvas');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x010103, 0.0002);
+    
+    // Adjust camera for mobile portrait
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 20000);
+    camera.position.set(0, 0, 8000); // Start far for zoom in effect
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const mainGroup = new THREE.Group();
+    scene.add(mainGroup);
+
+    // Earth (Slightly smaller/positioned lower for mobile)
+    const textureLoader = new THREE.TextureLoader();
+    const earthGeo = new THREE.SphereGeometry(120, 32, 32); // Reduced segments for mobile performance
+    const earthMat = new THREE.MeshStandardMaterial({
+        map: textureLoader.load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg'),
+        roughness: 0.6, 
+        metalness: 0.2,
+        emissive: new THREE.Color(0x2233ff), 
+        emissiveIntensity: 0.15
+    });
+    const earth = new THREE.Mesh(earthGeo, earthMat);
+    earth.position.y = -80; // Push down slightly on screen
+    mainGroup.add(earth);
+
+    // Background Stars (Reduced count for mobile)
+    const starCount = 80000;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    const starColors = new Float32Array(starCount * 3);
+    const c1 = new THREE.Color(0xffffff);
+    const c2 = new THREE.Color(0xd4af37);
+    for(let i=0; i<starCount; i++) {
+        starPos[i*3] = (Math.random() - 0.5) * 12000;
+        starPos[i*3+1] = (Math.random() - 0.5) * 12000;
+        starPos[i*3+2] = (Math.random() - 0.5) * 12000;
+        const mix = Math.random() > 0.9 ? c2 : c1;
+        starColors[i*3] = mix.r; starColors[i*3+1] = mix.g; starColors[i*3+2] = mix.b;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+    const starMat = new THREE.PointsMaterial({ size: 2, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending });
+    const stars = new THREE.Points(starGeo, starMat);
+    scene.add(stars);
+
+    // Lights
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2);
+    sunLight.position.set(500, 500, 1000);
+    scene.add(sunLight);
+    
+    const fillLight = new THREE.PointLight(0x00f0ff, 1, 5000);
+    fillLight.position.set(-1000, 0, 1000);
+    scene.add(fillLight);
+    
+    scene.add(new THREE.AmbientLight(0xffffff, 0.3)); 
+
+    // Mobile Orientation / Gyro simulation (Mouse fallback)
+    let targetX = 0, targetY = 0;
+    
+    // Fallback mouse tracking for desktop preview
+    document.addEventListener('mousemove', (e) => {
+        const appContainer = document.getElementById('app-container');
+        const rect = appContainer.getBoundingClientRect();
+        // Calculate relative to the app container
+        targetX = ((e.clientX - rect.left) / rect.width) - 0.5;
+        targetY = ((e.clientY - rect.top) / rect.height) - 0.5;
+    });
+
+    // Touch tracking for mobile
+    document.getElementById('app-container').addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        const rect = document.getElementById('app-container').getBoundingClientRect();
+        targetX = ((touch.clientX - rect.left) / rect.width) - 0.5;
+        targetY = ((touch.clientY - rect.top) / rect.height) - 0.5;
+    }, { passive: true });
+
+    const clock = new THREE.Clock();
+
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        const dt = clock.getDelta(); 
+        const timeScale = dt * 60;
+
+        earth.rotation.y += 0.0008 * timeScale;
+        stars.rotation.y += 0.00005 * timeScale;
+        
+        // Smooth camera parallax
+        const lerpFactor = 1 - Math.exp(-dt * 3);
+        camera.position.x += (targetX * 100 - camera.position.x) * lerpFactor;
+        camera.position.y += (-targetY * 100 - camera.position.y) * lerpFactor;
+        camera.lookAt(0, 0, 0);
+
+        renderer.render(scene, camera);
+    }
+
+    // Handle App Resize
+    window.addEventListener('resize', () => {
+        const container = document.getElementById('app-container');
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    // Splash Screen & Intro Animation
+    window.onload = () => {
+        setTimeout(() => {
+            // Fade out splash
+            gsap.to('#splash-screen', { 
+                opacity: 0, 
+                duration: 0.8, 
+                onComplete: () => document.getElementById('splash-screen').style.display = 'none' 
+            });
+
+            // Zoom camera in (App Launch effect)
+            gsap.to(camera.position, { z: 450, duration: 2.5, ease: "power3.out" });
+            
+            // Fade in content
+            gsap.fromTo('#screen-home', 
+                { opacity: 0, scale: 0.95, y: 30 },
+                { opacity: 1, scale: 1, y: 0, duration: 1.5, delay: 0.5, ease: "expo.out" }
+            );
+
+            // Set initial canvas size correctly based on container
+            const container = document.getElementById('app-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            
+            animate();
+        }, 1500); // Fake load time
+    };
+</script>
 </body>
 </html>

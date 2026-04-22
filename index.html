@@ -146,7 +146,7 @@
             flex: 1;
             height: 100%;
             color: rgba(255,255,255,0.4);
-            font-size: 9px; /* Slightly reduced to fit 6 items */
+            font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -226,6 +226,11 @@
         <div class="loader-ring mb-8"></div>
         <div class="heading-font text-white font-black tracking-[0.3em] text-sm">MIGHTY TECK</div>
         <div class="text-[8px] text-white/40 tracking-[0.2em] mt-2 uppercase">Connecting to Grid...</div>
+    </div>
+
+    <!-- System Toast Notification (For Owner Alerts) -->
+    <div id="system-toast" class="absolute top-0 left-1/2 -translate-x-1/2 bg-cyan-400/10 backdrop-blur-md border border-cyan-400 text-cyan-400 text-[9px] font-bold uppercase tracking-widest px-4 py-3 rounded-b-xl z-[100] transform -translate-y-full transition-transform duration-300 shadow-[0_0_20px_rgba(0,240,255,0.2)] flex items-center gap-2 w-max max-w-[90vw]">
+        <i data-lucide="radio" class="w-4 h-4 animate-pulse"></i> <span id="toast-msg">Alert</span>
     </div>
 
     <!-- 3D Background -->
@@ -329,49 +334,6 @@
             </div>
         </div>
 
-        <!-- SCREEN: PRICING -->
-        <div id="screen-pricing" class="screen">
-            <div class="py-4">
-                <span class="text-cyan-400 text-[9px] font-black tracking-[0.5em] uppercase mb-2 block">Acquisition</span>
-                <h2 class="heading-font text-2xl font-black text-white mb-6">MODELS</h2>
-
-                <!-- Growth Plan (Highlighted) -->
-                <div class="cyber-glass border-gold/40" style="background: rgba(212, 175, 55, 0.08);">
-                    <div class="absolute top-4 right-4 bg-gold/20 text-gold text-[8px] font-bold px-2 py-1 rounded tracking-widest">POPULAR</div>
-                    <h4 class="text-white uppercase tracking-[0.2em] text-[10px] font-black mb-2">Growth</h4>
-                    <div class="text-4xl font-black mb-4 text-gradient-gold heading-font">$700</div>
-                    <ul class="space-y-3 mb-6">
-                        <li class="flex items-start gap-2 text-xs text-white/80"><i data-lucide="check" class="text-gold w-3 h-3 mt-0.5"></i> 5 Page Professional Site</li>
-                        <li class="flex items-start gap-2 text-xs text-white/80"><i data-lucide="check" class="text-gold w-3 h-3 mt-0.5"></i> FB & Instagram Shop</li>
-                        <li class="flex items-start gap-2 text-xs text-white/80"><i data-lucide="check" class="text-gold w-3 h-3 mt-0.5"></i> Meta Pixel Tracking</li>
-                    </ul>
-                    <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-mighty">Select Plan</a>
-                </div>
-
-                <!-- Starter Plan -->
-                <div class="cyber-glass border-cyan-400/20">
-                    <h4 class="text-white uppercase tracking-[0.2em] text-[10px] font-black mb-2">Starter</h4>
-                    <div class="text-3xl font-black mb-4 text-white heading-font">$500</div>
-                    <ul class="space-y-3 mb-6">
-                        <li class="flex items-start gap-2 text-xs text-white/60"><i data-lucide="check" class="text-cyan-400 w-3 h-3 mt-0.5"></i> Basic 5 Page Site</li>
-                        <li class="flex items-start gap-2 text-xs text-white/60"><i data-lucide="check" class="text-cyan-400 w-3 h-3 mt-0.5"></i> Mobile Responsive</li>
-                    </ul>
-                    <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-mighty cyan text-xs py-3">Select Plan</a>
-                </div>
-                
-                <!-- Dominion Plan -->
-                <div class="cyber-glass border-cyan-400/20">
-                    <h4 class="text-white uppercase tracking-[0.2em] text-[10px] font-black mb-2">Dominion</h4>
-                    <div class="text-3xl font-black mb-4 text-white heading-font">$1000</div>
-                    <ul class="space-y-3 mb-6">
-                        <li class="flex items-start gap-2 text-xs text-white/60"><i data-lucide="check" class="text-cyan-400 w-3 h-3 mt-0.5"></i> Full Enterprise Setup</li>
-                        <li class="flex items-start gap-2 text-xs text-white/60"><i data-lucide="check" class="text-cyan-400 w-3 h-3 mt-0.5"></i> 6 Months VIP Maint.</li>
-                    </ul>
-                    <a href="mailto:sanjaykathulamusic@gmail.com" class="btn-mighty cyan text-xs py-3">Select Plan</a>
-                </div>
-            </div>
-        </div>
-
         <!-- SCREEN: CONTACT -->
         <div id="screen-contact" class="screen">
             <div class="py-4 flex-1 flex flex-col">
@@ -436,6 +398,14 @@
                 <!-- Dynamic Admin Controls Container -->
                 <div id="admin-container" class="space-y-4 mb-6">
                     <!-- Admin input cards injected here -->
+                </div>
+
+                <!-- Live AI Chat Intercepts -->
+                <h3 class="text-white font-bold text-[10px] uppercase tracking-widest mb-3 mt-4 flex items-center gap-2">
+                    <i data-lucide="radio" class="w-4 h-4 text-cyan-400 animate-pulse"></i> AI Intercept Logs
+                </h3>
+                <div id="admin-chat-logs" class="space-y-2 mb-6 max-h-48 overflow-y-auto bg-black/40 p-4 border border-white/10 rounded-xl">
+                    <p class="text-[9px] text-white/30 italic text-center">No recent chat activity.</p>
                 </div>
 
                 <button onclick="syncAndReturnToRoster()" class="btn-mighty cyan w-full flex justify-center gap-2">
@@ -633,6 +603,13 @@
             <div class="bg-white/10 p-3 rounded-xl rounded-tl-none w-[85%] text-sm text-white/90 leading-relaxed shadow-lg border border-white/5">
                 Greetings! I am Mighty AI. How can I assist you with our services, architectures, or pricing today?
             </div>
+            
+            <!-- Typing Indicator (Hidden by default) -->
+            <div id="typing-indicator" class="hidden bg-white/10 p-3 rounded-xl rounded-tl-none w-16 shadow-lg border border-white/5 flex gap-1 items-center justify-center h-10">
+                <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce"></div>
+                <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style="animation-delay: 0.15s"></div>
+                <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+            </div>
         </div>
         
         <!-- Input Area -->
@@ -679,10 +656,6 @@
         <div class="nav-item" data-target="services">
             <div class="icon-wrapper"><i data-lucide="grid" class="w-6 h-6"></i></div>
             <span>Services</span>
-        </div>
-        <div class="nav-item" data-target="pricing">
-            <div class="icon-wrapper"><i data-lucide="credit-card" class="w-6 h-6"></i></div>
-            <span>Pricing</span>
         </div>
         <div class="nav-item" data-target="contact">
             <div class="icon-wrapper"><i data-lucide="user" class="w-6 h-6"></i></div>
@@ -1013,6 +986,132 @@
         if (e.key === 'Enter') verifyAdminAuth();
     });
 
+    // --- AI CHATBOT & NOTIFICATION LOGIC ---
+    let aiLogs = [];
+    let ownerNotified = false;
+
+    function showSystemToast(message) {
+        const toast = document.getElementById('system-toast');
+        document.getElementById('toast-msg').innerText = message;
+        toast.classList.remove('-translate-y-full');
+        
+        // Push down just past safe area
+        toast.style.transform = `translateY(calc(env(safe-area-inset-top, 20px) + 10px))`; 
+        
+        setTimeout(() => {
+            toast.style.transform = '';
+            toast.classList.add('-translate-y-full');
+        }, 4000);
+    }
+
+    function logAiInteraction(userText) {
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        aiLogs.unshift({ time, text: userText });
+        if (aiLogs.length > 15) aiLogs.pop(); // Keep last 15 messages in memory
+        renderAiLogs();
+
+        // Simulate pinging the owner (throttled to once per minute to avoid spam)
+        if (!ownerNotified) {
+            showSystemToast("Owner Pinged: Client active in AI Chat");
+            ownerNotified = true;
+            setTimeout(() => { ownerNotified = false; }, 60000); 
+        }
+    }
+
+    function renderAiLogs() {
+        const container = document.getElementById('admin-chat-logs');
+        if(!container) return;
+        if (aiLogs.length === 0) {
+            container.innerHTML = '<p class="text-[9px] text-white/30 italic text-center">No recent chat activity.</p>';
+            return;
+        }
+        container.innerHTML = aiLogs.map(log => `
+            <div class="bg-cyan-400/5 border border-cyan-400/20 p-2.5 rounded-lg flex gap-3 items-start">
+                <span class="text-[8px] text-cyan-400 mt-1 font-mono flex-shrink-0 opacity-70">${log.time}</span>
+                <span class="text-[11px] text-white/90 leading-relaxed">"${log.text}"</span>
+            </div>
+        `).join('');
+    }
+
+    const chatFab = document.getElementById('chat-fab');
+    const chatOverlay = document.getElementById('chat-overlay');
+    const closeChat = document.getElementById('close-chat');
+    const chatInput = document.getElementById('chat-input');
+    const sendChat = document.getElementById('send-chat');
+    const chatHistory = document.getElementById('chat-history');
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    chatFab.addEventListener('click', () => {
+        chatOverlay.classList.remove('translate-y-full');
+    });
+
+    closeChat.addEventListener('click', () => {
+        chatOverlay.classList.add('translate-y-full');
+    });
+
+    // Intelligent Knowledge Base
+    const aiKnowledgeBase = [
+        { keywords: ['price', 'cost', 'pay', 'tier', 'plan', 'how much'], response: "Our digital infrastructures range from a $500 Starter tier to a $1000 Dominion enterprise setup. You can view full details and initiate a project securely in the Portal tab." },
+        { keywords: ['service', 'what do you do', 'offer', 'arsenal'], response: "Mighty Teck engineers immersive 3D web environments, provides cinematic drone videography, and develops advanced quadcopter flight systems. Tap the Services tab to view our full Arsenal." },
+        { keywords: ['drone', 'quadcopter', 'fly', 'aerial', 'camera'], response: "We offer high-altitude marketing drone visuals, video editing, and autonomous flight system R&D. Use the Services tab to send an inquiry directly to our Director." },
+        { keywords: ['3d', 'webgl', 'website', 'design', 'web'], response: "We build top-tier 3D Immersive websites using WebGL & Three.js. This creates spatial depth and premium aesthetics that separate your brand from 99% of competitors." },
+        { keywords: ['portal', 'client', 'login', 'dashboard', 'invoice'], response: "The Client Portal is your secure zone to onboard new projects, track progress, and download secure invoices. Navigate to the Portal tab to begin." },
+        { keywords: ['contact', 'sanjay', 'owner', 'talk', 'human', 'email'], response: "You can reach our Director, Sanjay Kathula, directly at sanjaykathulamusic@gmail.com, or through the Contact tab." },
+        { keywords: ['hello', 'hi', 'hey', 'greetings', 'sup'], response: "Hello there! Ready to achieve Market Dominance? Ask me anything about our services, pricing, or architectures." }
+    ];
+
+    function sendChatMessage() {
+        const text = chatInput.value.trim();
+        if(!text) return;
+
+        // 1. Log to Admin Portal & Notify Owner
+        logAiInteraction(text);
+
+        // 2. Append User Message
+        const userMsg = document.createElement('div');
+        userMsg.className = 'bg-cyan-400 text-black p-3 rounded-xl rounded-tr-none w-[85%] text-sm self-end ml-auto shadow-lg shadow-cyan-400/20';
+        userMsg.innerText = text;
+        chatHistory.insertBefore(userMsg, typingIndicator);
+        
+        chatInput.value = '';
+        chatInput.blur(); // Dismiss mobile keyboard
+        
+        // Scroll to bottom
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        // 3. Show "Thinking" Indicator
+        typingIndicator.classList.remove('hidden');
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        // 4. Determine AI Response based on NLP keyword matching
+        setTimeout(() => {
+            typingIndicator.classList.add('hidden'); // Hide thinking
+
+            const botMsg = document.createElement('div');
+            botMsg.className = 'bg-white/10 p-3 rounded-xl rounded-tl-none w-[85%] text-sm text-white/90 leading-relaxed shadow-lg border border-white/5';
+            
+            let reply = "I am processing your specific request. For immediate human assistance, please connect with our Director, Sanjay, via the Contact portal.";
+            const lowerText = text.toLowerCase();
+            
+            // Smart Keyword matching
+            for (let intent of aiKnowledgeBase) {
+                if (intent.keywords.some(kw => lowerText.includes(kw))) {
+                    reply = intent.response;
+                    break;
+                }
+            }
+
+            botMsg.innerText = reply;
+            chatHistory.insertBefore(botMsg, typingIndicator);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }, 1200 + Math.random() * 800); // Realistic 1.2s - 2.0s typing delay
+    }
+
+    sendChat.addEventListener('click', sendChatMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') sendChatMessage();
+    });
+
     function processPortalPayment() {
         const btn = document.getElementById('pay-btn');
         const originalHtml = btn.innerHTML;
@@ -1094,63 +1193,6 @@ Thank you,
         // Open the user's default email client
         window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
-
-    // --- AI CHATBOT LOGIC ---
-    const chatFab = document.getElementById('chat-fab');
-    const chatOverlay = document.getElementById('chat-overlay');
-    const closeChat = document.getElementById('close-chat');
-    const chatInput = document.getElementById('chat-input');
-    const sendChat = document.getElementById('send-chat');
-    const chatHistory = document.getElementById('chat-history');
-
-    chatFab.addEventListener('click', () => {
-        chatOverlay.classList.remove('translate-y-full');
-    });
-
-    closeChat.addEventListener('click', () => {
-        chatOverlay.classList.add('translate-y-full');
-    });
-
-    function sendChatMessage() {
-        const text = chatInput.value.trim();
-        if(!text) return;
-
-        // User Message
-        const userMsg = document.createElement('div');
-        userMsg.className = 'bg-cyan-400 text-black p-3 rounded-xl rounded-tr-none w-[85%] text-sm self-end ml-auto shadow-lg shadow-cyan-400/20';
-        userMsg.innerText = text;
-        chatHistory.appendChild(userMsg);
-        chatInput.value = '';
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-
-        // Mock AI Response
-        setTimeout(() => {
-            const botMsg = document.createElement('div');
-            botMsg.className = 'bg-white/10 p-3 rounded-xl rounded-tl-none w-[85%] text-sm text-white/90 leading-relaxed shadow-lg border border-white/5';
-            
-            let reply = "I am processing your request. For immediate assistance, please connect with our Director, Sanjay, via the Contact portal.";
-            const lowerText = text.toLowerCase();
-            
-            if(lowerText.includes('price') || lowerText.includes('cost') || lowerText.includes('pay')) {
-                reply = "Our digital infrastructures range from a $500 Starter tier to a $1000 Dominion enterprise setup. Check the Pricing tab for details.";
-            } else if(lowerText.includes('service') || lowerText.includes('do you do') || lowerText.includes('what')) {
-                reply = "We engineer immersive 3D web environments, provide cinematic drone videography, and develop advanced quadcopter flight systems. We are a complete digital ecosystem.";
-            } else if(lowerText.includes('hello') || lowerText.includes('hi')) {
-                reply = "Hello there! Ready to achieve Galactic Digital Supremacy? Ask me anything about our Arsenal.";
-            } else if(lowerText.includes('portal') || lowerText.includes('client')) {
-                reply = "The Client Portal is your secure zone to access deliverables, active projects, and secure invoices. Use your Client ID to log in.";
-            }
-
-            botMsg.innerText = reply;
-            chatHistory.appendChild(botMsg);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }, 600 + Math.random() * 400); // Slight random delay for realism
-    }
-
-    sendChat.addEventListener('click', sendChatMessage);
-    chatInput.addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') sendChatMessage();
-    });
 
     // --- THREE.JS ENGINE (Mobile Optimized) ---
     const canvas = document.getElementById('global-canvas');
